@@ -10,21 +10,27 @@
 precision mediump float;
 
 in vec2 uv;
-uniform float uTime;
-uniform vec2 uResolution;
 out vec4 fragColor;
 
+// global uniforms
+uniform float uTime;
+uniform vec2 uResolution;
+
+// controllable uniforms
+uniform vec3 uPlanetPosition;
+uniform float uPlanetRadius;
+uniform float uNoiseStrength;
+uniform vec3 uAtmosphereColor;
+in vec3 uSunDirection;
+
 // Planets geometry
-#define PLANET_POSITION vec3(0, 0, 0)
-#define PLANET_RADIUS 2.
-#define NOISE_STRENGTH .2
 #define ROTATION_SPEED -.1
 #define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED)
 
 #define MOON_RADIUS .08
 #define MOON_ROTATION_SPEED ROTATION_SPEED * 5.
-#define MOON_OFFSET vec3(PLANET_RADIUS * 1.2, PLANET_RADIUS / 4., 0.)
-#define MOON_ROTATION_AXIS (MOON_OFFSET - PLANET_POSITION) * rotateZ(PI/2.)
+#define MOON_OFFSET vec3(uPlanetRadius * 1.2, uPlanetRadius / 4., 0.)
+#define MOON_ROTATION_AXIS (MOON_OFFSET - uPlanetPosition) * rotateZ(PI/2.)
 
 // Planet colors
 #define WATER_COLOR_DEEP vec3(0.01, 0.05, 0.15)
@@ -34,7 +40,6 @@ out vec4 fragColor;
 #define ROCK_COLOR vec3(0.15, 0.12, 0.12)
 #define ICE_COLOR  vec3(0.8, .9, .9)
 #define CLOUD_COLOR  vec3(1., 1., 1.)
-#define ATMOSPHERE_COLOR vec3(0.05, 0.3, 0.9)
 
 #define WATER_SURFACE_LEVEL 0.0
 #define SAND_LEVEL .028
@@ -44,7 +49,6 @@ out vec4 fragColor;
 #define TRANSITION .02
 
 // Lighting
-#define SUN_DIR normalize(vec3(1.0, 1.0, 0.))
 #define SUN_COLOR vec3(1.0, 1.0, 0.9) * 3.
 #define AMBIENT_LIGHT vec3(.003)
 #define SPACE_BLUE vec3(0., 0., 0.002)
@@ -84,8 +88,11 @@ struct Sphere {
 };
 
 Hit miss = Hit(INFINITY, vec3(0.), Material(vec3(0.), -1., -1.));
-Sphere planet = Sphere(PLANET_POSITION, PLANET_RADIUS);
+// Sphere planet = Sphere(uPlanetPosition, uPlanetRadius);
 
+Sphere getPlanet() {
+  return Sphere(uPlanetPosition, uPlanetRadius);
+}
 
 //===============================================//
 //  Generic utilities stolen from smarter people //
@@ -212,14 +219,14 @@ vec3 stars(in vec3 p) {
   vec3 c = vec3(0.);
   float res = uResolution.x * 0.8;
 
-  for(float i = 0.; i < 5.; i++) {
+  for(float i = 0.; i < 3.; i++) {
     vec3 q = fract(p * (.15 * res)) - 0.5;
     vec3 id = floor(p * (.15 * res));
     vec2 rn = nmzHash33(id).xy;
     float c2 = 1. - smoothstep(0., .6, length(q));
     c2 *= step(rn.x, .0005 + i * 0.002);
-    c += c2 * (mix(vec3(1.0, 0.49, 0.1), vec3(0.75, 0.9, 1.), rn.y) * 0.25 + 0.75);
-    p *= 1.4;
+    c += c2 * (mix(vec3(1.0, 0.49, 0.1), vec3(0.75, 0.9, 1.), rn.y) * 0.25 + 1.2);
+    p *= 2.;
   }
   return c * c;
 }
@@ -255,11 +262,11 @@ vec3 simpleReinhardToneMapping(vec3 color) {
 //========//
 
 float planetNoise(vec3 p) {
-  float fbm = fbm(p * .8, 6, .5, 2., 5.) * NOISE_STRENGTH;
+  float fbm = fbm(p * .8, 6, .5, 2., 5.) * uNoiseStrength;
 
   // Flatten the noise on the oceans
   return mix(//
-    fbm / 3. + NOISE_STRENGTH / 50., //
+    fbm / 3. + uNoiseStrength / 50., //
     fbm, //
     smoothstep(SAND_LEVEL, SAND_LEVEL + TRANSITION / 2., fbm * 5.)//
   );
@@ -271,16 +278,16 @@ float planetNoise(vec3 p) {
 */
 float planetDist(in vec3 ro, in vec3 rd) {
   Ray ray = Ray(ro, rd);
-  float smoothSphereDist = sphIntersect(ray, planet);
+  float smoothSphereDist = sphIntersect(ray, getPlanet());
 
   vec3 intersection = ro + smoothSphereDist * rd;
-  vec3 intersectionWithRotation = (intersection - PLANET_POSITION) * PLANET_ROTATION + PLANET_POSITION;
+  vec3 intersectionWithRotation = (intersection - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
 
-  return sphIntersect(ray, Sphere(PLANET_POSITION, PLANET_RADIUS + planetNoise(intersectionWithRotation)));
+  return sphIntersect(ray, Sphere(uPlanetPosition, uPlanetRadius + planetNoise(intersectionWithRotation)));
 }
 
 vec3 planetNormal(vec3 p) {
-  vec3 rd = PLANET_POSITION - p;
+  vec3 rd = uPlanetPosition - p;
   float dist = planetDist(p, rd);
   vec2 e = vec2(.01, 0);
 
@@ -290,7 +297,7 @@ vec3 planetNormal(vec3 p) {
 
 vec3 currentMoonPosition() {
   mat3 moonRotation = rotate3d(MOON_ROTATION_AXIS, uTime * MOON_ROTATION_SPEED);
-  return MOON_OFFSET * moonRotation + PLANET_POSITION;
+  return MOON_OFFSET * moonRotation + uPlanetPosition;
 }
 
 vec3 spaceColor(vec3 direction) {
@@ -298,7 +305,7 @@ vec3 spaceColor(vec3 direction) {
   vec3 backgroundCoord = direction * backgroundRotation;
   float spaceNoise = fbm(backgroundCoord * 3., 4, .5, 2., 6.);
 
-  return stars(backgroundCoord) + mix(SPACE_BLUE, ATMOSPHERE_COLOR / 4., spaceNoise);
+  return stars(backgroundCoord) + mix(SPACE_BLUE, uAtmosphereColor / 4., spaceNoise);
 }
 
 //===============//
@@ -306,14 +313,14 @@ vec3 spaceColor(vec3 direction) {
 //===============//
 
 Hit intersectPlanet(Ray ray) {
-  float len = sphIntersect(ray, planet);
+  float len = sphIntersect(ray, getPlanet());
 
   if(len < 0.) {
     return miss;
   }
 
   vec3 position = ray.origin + len * ray.direction;
-  vec3 rotatedCoord = (position - PLANET_POSITION) * PLANET_ROTATION + PLANET_POSITION;
+  vec3 rotatedCoord = (position - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
   float altitude = 5. * planetNoise(rotatedCoord);
 
   vec3 normal = planetNormal(position);
@@ -374,21 +381,21 @@ vec3 radiance(Ray ray, inout float spaceMask) {
       spaceMask = 0.;
 
       vec3 hitPosition = ray.origin + hit.len * ray.direction;
-      Hit shadowHit = intersectScene(Ray(hitPosition + EPSILON * SUN_DIR, SUN_DIR));
+      Hit shadowHit = intersectScene(Ray(hitPosition + EPSILON * uSunDirection, uSunDirection));
       float hitDirectLight = clamp(
         step(INFINITY, shadowHit.len) 
-        + step(length(hitPosition - PLANET_POSITION) - PLANET_RADIUS, .1), // don't cast shadow on the planet, only the moon
+        + step(length(hitPosition - uPlanetPosition) - uPlanetRadius, .1), // don't cast shadow on the planet, only the moon
         0., 
         1.
       );
 
       // Diffuse
-      float directLightIntensity = pow(clamp(dot(hit.normal, SUN_DIR), 0.0, 1.0), 2.); // the power softens the shadow. Not physically accurate but it looks better to me
+      float directLightIntensity = pow(clamp(dot(hit.normal, uSunDirection), 0.0, 1.0), 2.); // the power softens the shadow. Not physically accurate but it looks better to me
       vec3 diffuseLight = hitDirectLight * directLightIntensity * SUN_COLOR;
       vec3 diffuseColor = hit.material.color.rgb * (AMBIENT_LIGHT + diffuseLight);
 
       // Phong specular
-      vec3 reflected = normalize(reflect(-SUN_DIR, hit.normal));
+      vec3 reflected = normalize(reflect(-uSunDirection, hit.normal));
       float phongValue = pow(max(0.0, dot(ray.direction, reflected)), 10.) * .6;
       vec3 specularColor = hit.material.specular * vec3(phongValue);
 
@@ -415,7 +422,7 @@ vec3 radiance(Ray ray, inout float spaceMask) {
 //========//
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
-  float planetDist = sphIntersect(Ray(ro, rd), planet);
+  float planetDist = sphIntersect(Ray(ro, rd), getPlanet());
   float moonDist = sphIntersect(Ray(ro, rd), Sphere(currentMoonPosition(), MOON_RADIUS));
   float closestHit = planetDist;
   if (planetDist < 0. || moonDist >= 0. && moonDist < planetDist) {
@@ -423,23 +430,23 @@ vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
   }
   vec3 position = ro + closestHit * rd;
   
-  float distCameraToPlanetOrigin = length(PLANET_POSITION - CAMERA_POSITION);
-  float distCameraToPlanetEdge = sqrt(distCameraToPlanetOrigin * distCameraToPlanetOrigin - PLANET_RADIUS * PLANET_RADIUS);
+  float distCameraToPlanetOrigin = length(uPlanetPosition - CAMERA_POSITION);
+  float distCameraToPlanetEdge = sqrt(distCameraToPlanetOrigin * distCameraToPlanetOrigin - uPlanetRadius * uPlanetRadius);
   float distCameraToMoon = length(currentMoonPosition() - CAMERA_POSITION);
-  float isMoonInFront = smoothstep(-PLANET_RADIUS/2., PLANET_RADIUS/2., distCameraToPlanetEdge - distCameraToMoon);
+  float isMoonInFront = smoothstep(-uPlanetRadius/2., uPlanetRadius/2., distCameraToPlanetEdge - distCameraToMoon);
 
-  float moonMask = (1.0 - spaceMask) * step(PLANET_RADIUS + EPSILON, length(position - PLANET_POSITION));
+  float moonMask = (1.0 - spaceMask) * step(uPlanetRadius + EPSILON, length(position - uPlanetPosition));
   float planetMask = 1.0 - spaceMask - moonMask;
 
-  vec3 coordFromCenter = (ro + rd * distCameraToPlanetEdge) - PLANET_POSITION;
-  float distFromEdge = abs(length(coordFromCenter) - PLANET_RADIUS);
+  vec3 coordFromCenter = (ro + rd * distCameraToPlanetEdge) - uPlanetPosition;
+  float distFromEdge = abs(length(coordFromCenter) - uPlanetRadius);
   float planetEdge = max(1. - distFromEdge, 0.);
-  float atmosphereDensity = pow(remap(dot(SUN_DIR, coordFromCenter), -2., 1., 0., 1.), 5.);
+  float atmosphereDensity = pow(remap(dot(uSunDirection, coordFromCenter), -2., 1., 0., 1.), 5.);
 
-  vec3 atmosphere = pow(planetEdge, 80.) * ATMOSPHERE_COLOR;
-  atmosphere += pow(planetEdge, 30.) * ATMOSPHERE_COLOR * (1.5 - planetMask);
-  atmosphere += pow(planetEdge, 4.) * ATMOSPHERE_COLOR * .02;
-  atmosphere += pow(planetEdge, 2.) * ATMOSPHERE_COLOR * .1 * planetMask;
+  vec3 atmosphere = pow(planetEdge, 80.) * uAtmosphereColor;
+  atmosphere += pow(planetEdge, 30.) * uAtmosphereColor * (1.5 - planetMask);
+  atmosphere += pow(planetEdge, 4.) * uAtmosphereColor * .02;
+  atmosphere += pow(planetEdge, 2.) * uAtmosphereColor * .1 * planetMask;
 
   return atmosphere * atmosphereDensity * (1. - moonMask * isMoonInFront);
 }
