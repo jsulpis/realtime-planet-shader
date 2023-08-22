@@ -41,8 +41,16 @@ export function useGlslCanvas(...args: ConstructorParameters<typeof Material>) {
 
    const mesh = new Mesh(geometry, material);
 
+   const rafCallbacks: Function[] = [];
+
+   function raf(callback: Function) {
+      rafCallbacks.push(callback);
+   }
+
    requestAnimationFrame(function animate() {
       requestAnimationFrame(animate);
+
+      rafCallbacks.forEach((callback) => callback());
 
       mesh.material.uniforms.uTime = performance.now() / 1000;
 
@@ -60,5 +68,5 @@ export function useGlslCanvas(...args: ConstructorParameters<typeof Material>) {
       ];
    });
 
-   return { renderer, uniforms: mesh.material.uniforms };
+   return { renderer, raf, uniforms: mesh.material.uniforms };
 }
