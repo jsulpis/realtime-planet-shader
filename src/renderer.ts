@@ -43,6 +43,15 @@ export function useGlslCanvas(...args: ConstructorParameters<typeof Material>) {
 
    const rafCallbacks: Function[] = [];
 
+   /**
+    * Usage:
+    * ```javascript
+    * raf(() => {
+    *   // do something at each frame
+    * })
+    * ```
+    * @param callback function to execute at each frame
+    */
    function raf(callback: Function) {
       rafCallbacks.push(callback);
    }
