@@ -8,8 +8,9 @@ import fragmentShader from "./shaders/fragment.glsl";
 import { addPlanetControls } from "./controls/planet.controls";
 import { addLightControls } from "./controls/light.controls";
 import { addMonitor } from "./controls/monitor.controls";
+import { load3DNoiseTexture } from "./noiseTexture";
 
-const { uniforms } = useGlslCanvas({
+const { uniforms, renderer } = useGlslCanvas({
    vertex: vertexShader,
    fragment: fragmentShader,
    uniforms: {
@@ -26,7 +27,9 @@ const { uniforms } = useGlslCanvas({
    },
 });
 
-export const pane = new Pane({ title: "Controls" });
+load3DNoiseTexture(renderer.gl);
+
+const pane = new Pane({ title: "Controls" });
 
 addPlanetControls(pane, uniforms);
 addLightControls(pane, uniforms);
