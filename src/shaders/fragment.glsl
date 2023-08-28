@@ -20,6 +20,7 @@ uniform vec2 uResolution;
 uniform sampler3D noiseTexture;
 
 // controllable uniforms
+uniform float uQuality;
 uniform vec3 uPlanetPosition;
 uniform float uPlanetRadius;
 uniform float uNoiseStrength;
@@ -133,8 +134,10 @@ float fbm(vec3 p, int octaves, float persistence, float lacunarity, float expone
   float frequency = 3.0;
   float total = 0.0;
   float normalization = 0.0;
+  int qualityDegradation = 2 - int(floor(uQuality)); // 0 when quality=optimal, 2 when quality=low
+  int octavesWithQuality = max(octaves - qualityDegradation, 1);
 
-  for(int i = 0; i < octaves; ++i) {
+  for(int i = 0; i < octavesWithQuality; ++i) {
     float noiseValue = noise(p * frequency);
     total += noiseValue * amplitude;
     normalization += amplitude;
@@ -193,7 +196,7 @@ vec3 nmzHash33(vec3 q) {
 // nimitz - https://www.shadertoy.com/view/XsyGWV
 vec3 stars(in vec3 p) {
   vec3 c = vec3(0.);
-  float res = uResolution.x * 0.8;
+  float res = uResolution.x * uQuality * 0.8;
 
   for(float i = 0.; i < 3.; i++) {
     vec3 q = fract(p * (.15 * res)) - 0.5;
@@ -265,7 +268,9 @@ float planetDist(in vec3 ro, in vec3 rd) {
 vec3 planetNormal(vec3 p) {
   vec3 rd = uPlanetPosition - p;
   float dist = planetDist(p, rd);
-  vec2 e = vec2(.01, 0);
+  // if e is too small it causes artifacts on mobile, so I interpolate 
+  // between .01 (large screens) and .03 (small screens)
+  vec2 e = vec2(max(.01, .03 * smoothstep(1300., 300., uResolution.x)), 0);
 
   vec3 normal = dist - vec3(planetDist(p - e.xyy, rd), planetDist(p - e.yxy, rd), planetDist(p + e.yyx, rd));
   return normalize(normal);

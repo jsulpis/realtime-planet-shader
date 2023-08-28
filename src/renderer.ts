@@ -15,8 +15,8 @@ export function useGlslCanvas(...args: ConstructorParameters<typeof Material>) {
       canvas: document.querySelector("canvas"),
    });
    renderer.setSize(
-      window.innerWidth * window.devicePixelRatio,
-      window.innerHeight * window.devicePixelRatio
+      window.innerWidth * (args[0].uniforms.uQuality as number),
+      window.innerHeight * (args[0].uniforms.uQuality as number)
    );
 
    const camera = new PerspectiveCamera();
@@ -67,13 +67,14 @@ export function useGlslCanvas(...args: ConstructorParameters<typeof Material>) {
    });
 
    window.addEventListener("resize", () => {
+      const quality = mesh.material.uniforms.uQuality as number;
       renderer.setSize(
-         window.innerWidth * window.devicePixelRatio,
-         window.innerHeight * window.devicePixelRatio
+         window.innerWidth * quality,
+         window.innerHeight * quality
       );
       mesh.material.uniforms.uResolution = [
-         window.innerWidth * window.devicePixelRatio,
-         window.innerHeight * window.devicePixelRatio,
+         window.innerWidth,
+         window.innerHeight,
       ];
    });
 
