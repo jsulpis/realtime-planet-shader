@@ -54,7 +54,7 @@ in vec3 uSunDirection;
 
 // Lighting
 #define SUN_COLOR vec3(1.0, 1.0, 0.9) * 3.
-#define AMBIENT_LIGHT vec3(.003)
+#define AMBIENT_LIGHT vec3(.002)
 #define SPACE_BLUE vec3(0., 0., 0.002)
 
 // Ray tracing

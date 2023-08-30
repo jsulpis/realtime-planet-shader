@@ -9,4 +9,12 @@ canvas {
    display: block;
    width: 100%;
    height: 100%;
+   cursor: grab;
+   /* avoid selecting things with long press on touch screens */
+   user-select: none;
+   /* prevent mobile browsers from conflicting with the pointermove event */
+   touch-action: none;
+}
+canvas.grabbing {
+   cursor: grabbing;
 }

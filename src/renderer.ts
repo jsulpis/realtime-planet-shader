@@ -78,5 +78,10 @@ export function useGlslCanvas(...args: ConstructorParameters<typeof Material>) {
       ];
    });
 
-   return { renderer, raf, uniforms: mesh.material.uniforms };
+   return {
+      renderer,
+      raf,
+      uniforms: mesh.material.uniforms,
+      canvas: renderer.canvas,
+   };
 }

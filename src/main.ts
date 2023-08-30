@@ -10,8 +10,9 @@ import { addLightControls } from "./controls/light.controls";
 import { addMonitor } from "./controls/monitor.controls";
 import { load3DNoiseTexture } from "./noiseTexture";
 import { Quality, addQualityControl } from "./controls/quality.controls";
+import { addPointerControls } from "./controls/pointer.controls";
 
-const { uniforms, renderer } = useGlslCanvas({
+const { uniforms, renderer, canvas } = useGlslCanvas({
    vertex: vertexShader,
    fragment: fragmentShader,
    uniforms: {
@@ -27,6 +28,8 @@ const { uniforms, renderer } = useGlslCanvas({
 });
 
 load3DNoiseTexture(renderer.gl);
+
+addPointerControls(canvas, uniforms);
 
 const pane = new Pane({ title: "Controls" });
 

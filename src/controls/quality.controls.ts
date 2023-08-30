@@ -4,7 +4,7 @@ import { ListBladeApi, Pane } from "tweakpane";
 export enum Quality {
    LOW = 0.5,
    MEDIUM = 1,
-   OPTIMAL = window.devicePixelRatio,
+   OPTIMAL = 2,
 }
 
 export function addQualityControl(
