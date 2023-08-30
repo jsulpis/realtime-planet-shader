@@ -8,8 +8,8 @@
 #version 300 es
 
 precision highp float;
-precision highp int;
-precision highp sampler3D;
+precision mediump int;
+precision mediump sampler3D;
 
 in vec2 uv;
 out vec4 fragColor;
@@ -69,10 +69,6 @@ in vec3 uSunDirection;
 //  Types  //
 //=========//
 
-struct Ray {
-  vec3 origin;
-  vec3 direction;
-};
 
 struct Material {
   vec3 color;
@@ -117,9 +113,9 @@ float noise(vec3 p) {
 }
 
 // https://iquilezles.org/articles/intersectors/
-float sphIntersect(in Ray ray, in Sphere sphere) {
-  vec3 oc = ray.origin - sphere.position;
-  float b = dot(oc, ray.direction);
+float sphIntersect(in vec3 ro, in vec3 rd, in Sphere sphere) {
+  vec3 oc = ro - sphere.position;
+  float b = dot(oc, rd);
   float c = dot(oc, oc) - sphere.radius * sphere.radius;
   float h = b * b - c;
   if(h < 0.0)
@@ -186,14 +182,8 @@ mat3 rotate3d(vec3 axis, float angle) {
   );
 }
 
-vec3 nmzHash33(vec3 q) {
-  uvec3 p = uvec3(ivec3(q));
-  p = p * uvec3(374761393U, 1103515245U, 668265263U) + p.zxy + p.yzx;
-  p = p.yzx * (p.zxy ^ (p >> 3U));
-  return vec3(p ^ (p >> 16U)) * (1.0 / vec3(0xffffffffU));
-}
-
 // nimitz - https://www.shadertoy.com/view/XsyGWV
+// I reused the 3D noise texture instead of nimitz's hash function for better performance
 vec3 stars(in vec3 p) {
   vec3 c = vec3(0.);
   float res = uResolution.x * uQuality * 0.8;
@@ -201,11 +191,11 @@ vec3 stars(in vec3 p) {
   for(float i = 0.; i < 3.; i++) {
     vec3 q = fract(p * (.15 * res)) - 0.5;
     vec3 id = floor(p * (.15 * res));
-    vec2 rn = nmzHash33(id).xy;
+    vec2 rn = vec2(noise(id/2.), noise(id.zyx*2.))*.03;
     float c2 = 1. - smoothstep(0., .6, length(q));
-    c2 *= step(rn.x, .0005 + i * 0.002);
+    c2 *= step(rn.x, .003 + i * 0.0005);
     c += c2 * (mix(vec3(1.0, 0.49, 0.1), vec3(0.75, 0.9, 1.), rn.y) * 0.25 + 1.2);
-    p *= 2.;
+    p *= 1.8;
   }
   return c * c;
 }
@@ -256,13 +246,12 @@ float planetNoise(vec3 p) {
 * Probably not exact (especially near the edges), but it looks good enough
 */
 float planetDist(in vec3 ro, in vec3 rd) {
-  Ray ray = Ray(ro, rd);
-  float smoothSphereDist = sphIntersect(ray, getPlanet());
+  float smoothSphereDist = sphIntersect(ro, rd, getPlanet());
 
   vec3 intersection = ro + smoothSphereDist * rd;
   vec3 intersectionWithRotation = (intersection - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
 
-  return sphIntersect(ray, Sphere(uPlanetPosition, uPlanetRadius + planetNoise(intersectionWithRotation)));
+  return sphIntersect(ro, rd, Sphere(uPlanetPosition, uPlanetRadius + planetNoise(intersectionWithRotation)));
 }
 
 vec3 planetNormal(vec3 p) {
@@ -293,14 +282,14 @@ vec3 spaceColor(vec3 direction) {
 //  Ray Tracing  //
 //===============//
 
-Hit intersectPlanet(Ray ray) {
-  float len = sphIntersect(ray, getPlanet());
+Hit intersectPlanet(vec3 ro, vec3 rd) {
+  float len = sphIntersect(ro, rd, getPlanet());
 
   if(len < 0.) {
     return miss;
   }
 
-  vec3 position = ray.origin + len * ray.direction;
+  vec3 position = ro + len * rd;
   vec3 rotatedCoord = (position - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
   float altitude = 5. * planetNoise(rotatedCoord);
 
@@ -323,15 +312,15 @@ Hit intersectPlanet(Ray ray) {
   return Hit(len, normal, Material(color, 1., specular));
 }
 
-Hit intersectMoon(Ray ray) {
+Hit intersectMoon(vec3 ro, vec3 rd) {
   vec3 moonPosition = currentMoonPosition();
-  float length = sphIntersect(ray, Sphere(moonPosition, MOON_RADIUS));
+  float length = sphIntersect(ro, rd, Sphere(moonPosition, MOON_RADIUS));
 
   if(length < 0.) {
     return miss;
   }
 
-  vec3 position = ray.origin + length * ray.direction;
+  vec3 position = ro + length * rd;
   vec3 originalPosition = position * rotate3d(MOON_ROTATION_AXIS, -uTime * MOON_ROTATION_SPEED);
   vec3 color = vec3(sqrt(fbm(originalPosition * 12., 6, .5, 2., 5.)));
   vec3 normal = normalize(position - moonPosition);
@@ -339,9 +328,9 @@ Hit intersectMoon(Ray ray) {
   return Hit(length, normal, Material(color, 1., 0.));
 }
 
-Hit intersectScene(Ray ray) {
-  Hit planetHit = intersectPlanet(ray);
-  Hit moonHit = intersectMoon(ray);
+Hit intersectScene(vec3 ro, vec3 rd) {
+  Hit planetHit = intersectPlanet(ro, rd);
+  Hit moonHit = intersectMoon(ro, rd);
 
   if(moonHit.len < planetHit.len) {
     return moonHit;
@@ -351,18 +340,18 @@ Hit intersectScene(Ray ray) {
 }
 
 
-vec3 radiance(Ray ray, inout float spaceMask) {
+vec3 radiance(vec3 ro, vec3 rd, inout float spaceMask) {
   vec3 color = vec3(0.0);
   vec3 attenuation = vec3(1.0);
 
   for(int i = 1; i <= MAX_BOUNCES; i++) {
-    Hit hit = intersectScene(ray);
+    Hit hit = intersectScene(ro, rd);
 
     if(hit.len < INFINITY) {
       spaceMask = 0.;
 
-      vec3 hitPosition = ray.origin + hit.len * ray.direction;
-      Hit shadowHit = intersectScene(Ray(hitPosition + EPSILON * uSunDirection, uSunDirection));
+      vec3 hitPosition = ro + hit.len * rd;
+      Hit shadowHit = intersectScene(hitPosition + EPSILON * uSunDirection, uSunDirection);
       float hitDirectLight = clamp(
         step(INFINITY, shadowHit.len) 
         + step(length(hitPosition - uPlanetPosition) - uPlanetRadius, .1), // don't cast shadow on the planet, only the moon
@@ -377,7 +366,7 @@ vec3 radiance(Ray ray, inout float spaceMask) {
 
       // Phong specular
       vec3 reflected = normalize(reflect(-uSunDirection, hit.normal));
-      float phongValue = pow(max(0.0, dot(ray.direction, reflected)), 10.) * .6;
+      float phongValue = pow(max(0.0, dot(rd, reflected)), 10.) * .6;
       vec3 specularColor = hit.material.specular * vec3(phongValue);
 
       color += attenuation * (diffuseColor + specularColor);
@@ -385,12 +374,13 @@ vec3 radiance(Ray ray, inout float spaceMask) {
       // Next bounce
       attenuation *= hit.material.specular;
 
-      vec3 reflection = reflect(ray.direction, hit.normal);
-      ray = Ray(ray.origin + hit.len * ray.direction + EPSILON * reflection, reflection);
+      vec3 reflection = reflect(rd, hit.normal);
+      ro += hit.len * rd + EPSILON * reflection;
+      rd = reflection;
 
     } else {
       if(spaceMask == 1.) {
-        color += attenuation * spaceColor(ray.direction);
+        color += attenuation * spaceColor(rd);
       }
       break;
     }
@@ -403,8 +393,8 @@ vec3 radiance(Ray ray, inout float spaceMask) {
 //========//
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
-  float planetDist = sphIntersect(Ray(ro, rd), getPlanet());
-  float moonDist = sphIntersect(Ray(ro, rd), Sphere(currentMoonPosition(), MOON_RADIUS));
+  float planetDist = sphIntersect(ro, rd, getPlanet());
+  float moonDist = sphIntersect(ro, rd, Sphere(currentMoonPosition(), MOON_RADIUS));
   float closestHit = planetDist;
   if (planetDist < 0. || moonDist >= 0. && moonDist < planetDist) {
     closestHit = moonDist;
@@ -435,11 +425,10 @@ vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
 void main() {
   vec3 ro = vec3(CAMERA_POSITION);
   vec3 rd = normalize(vec3(uv.x, uv.y, -1));
-  Ray ray = Ray(ro, rd);
 
   float spaceMask = 1.;
 
-  vec3 color = radiance(ray, spaceMask);
+  vec3 color = radiance(ro, rd, spaceMask);
 
   color += atmosphereColor(ro, rd, spaceMask);
 
