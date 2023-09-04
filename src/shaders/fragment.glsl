@@ -58,7 +58,6 @@ in vec3 uSunDirection;
 #define SPACE_BLUE vec3(0., 0., 0.002)
 
 // Ray tracing
-#define MAX_BOUNCES 1 // something's wrong with the normals when using more than one bounce...
 #define EPSILON 1e-3
 #define INFINITY 1e10
 #define CAMERA_POSITION vec3(0., 0., 6.0)
@@ -278,6 +277,30 @@ vec3 spaceColor(vec3 direction) {
   return stars(backgroundCoord) + mix(SPACE_BLUE, uAtmosphereColor / 4., spaceNoise);
 }
 
+vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask, Hit firstHit) {
+  vec3 position = ro + firstHit.len * rd;
+  
+  float distCameraToPlanetOrigin = length(uPlanetPosition - CAMERA_POSITION);
+  float distCameraToPlanetEdge = sqrt(distCameraToPlanetOrigin * distCameraToPlanetOrigin - uPlanetRadius * uPlanetRadius);
+  float distCameraToMoon = length(currentMoonPosition() - CAMERA_POSITION);
+  float isMoonInFront = smoothstep(-uPlanetRadius/2., uPlanetRadius/2., distCameraToPlanetEdge - distCameraToMoon);
+
+  float moonMask = (1.0 - spaceMask) * step(uPlanetRadius + EPSILON, length(position - uPlanetPosition));
+  float planetMask = 1.0 - spaceMask - moonMask;
+
+  vec3 coordFromCenter = (ro + rd * distCameraToPlanetEdge) - uPlanetPosition;
+  float distFromEdge = abs(length(coordFromCenter) - uPlanetRadius);
+  float planetEdge = max(1. - distFromEdge, 0.);
+  float atmosphereDensity = pow(remap(dot(uSunDirection, coordFromCenter), -2., 1., 0., 1.), 5.);
+
+  vec3 atmosphere = pow(planetEdge, 80.) * uAtmosphereColor;
+  atmosphere += pow(planetEdge, 30.) * uAtmosphereColor * (1.5 - planetMask);
+  atmosphere += pow(planetEdge, 4.) * uAtmosphereColor * .02;
+  atmosphere += pow(planetEdge, 2.) * uAtmosphereColor * .1 * planetMask;
+
+  return atmosphere * atmosphereDensity * (1. - moonMask * isMoonInFront);
+}
+
 //===============//
 //  Ray Tracing  //
 //===============//
@@ -339,98 +362,50 @@ Hit intersectScene(vec3 ro, vec3 rd) {
   return planetHit;
 }
 
+vec3 radiance(vec3 ro, vec3 rd) {
+  vec3 color = vec3(0.);
+  float spaceMask = 1.;
+  Hit hit = intersectScene(ro, rd);
 
-vec3 radiance(vec3 ro, vec3 rd, inout float spaceMask) {
-  vec3 color = vec3(0.0);
-  vec3 attenuation = vec3(1.0);
+  if(hit.len < INFINITY) {
+    spaceMask = 0.;
 
-  for(int i = 1; i <= MAX_BOUNCES; i++) {
-    Hit hit = intersectScene(ro, rd);
+    vec3 hitPosition = ro + hit.len * rd;
+    Hit shadowHit = intersectScene(hitPosition + EPSILON * uSunDirection, uSunDirection);
+    float hitDirectLight = clamp(
+      step(INFINITY, shadowHit.len) 
+      + step(length(hitPosition - uPlanetPosition) - uPlanetRadius, .1), // don't cast shadow on the planet, only the moon
+      0., 
+      1.
+    );
 
-    if(hit.len < INFINITY) {
-      spaceMask = 0.;
+    // Diffuse
+    float directLightIntensity = pow(clamp(dot(hit.normal, uSunDirection), 0.0, 1.0), 2.); // the power softens the shadow. Not physically accurate but it looks better to me
+    vec3 diffuseLight = hitDirectLight * directLightIntensity * SUN_COLOR;
+    vec3 diffuseColor = hit.material.color.rgb * (AMBIENT_LIGHT + diffuseLight);
 
-      vec3 hitPosition = ro + hit.len * rd;
-      Hit shadowHit = intersectScene(hitPosition + EPSILON * uSunDirection, uSunDirection);
-      float hitDirectLight = clamp(
-        step(INFINITY, shadowHit.len) 
-        + step(length(hitPosition - uPlanetPosition) - uPlanetRadius, .1), // don't cast shadow on the planet, only the moon
-        0., 
-        1.
-      );
+    // Phong specular
+    vec3 reflected = normalize(reflect(-uSunDirection, hit.normal));
+    float phongValue = pow(max(0.0, dot(rd, reflected)), 10.) * .6;
+    vec3 specularColor = hit.material.specular * vec3(phongValue);
 
-      // Diffuse
-      float directLightIntensity = pow(clamp(dot(hit.normal, uSunDirection), 0.0, 1.0), 2.); // the power softens the shadow. Not physically accurate but it looks better to me
-      vec3 diffuseLight = hitDirectLight * directLightIntensity * SUN_COLOR;
-      vec3 diffuseColor = hit.material.color.rgb * (AMBIENT_LIGHT + diffuseLight);
-
-      // Phong specular
-      vec3 reflected = normalize(reflect(-uSunDirection, hit.normal));
-      float phongValue = pow(max(0.0, dot(rd, reflected)), 10.) * .6;
-      vec3 specularColor = hit.material.specular * vec3(phongValue);
-
-      color += attenuation * (diffuseColor + specularColor);
-
-      // Next bounce
-      attenuation *= hit.material.specular;
-
-      vec3 reflection = reflect(rd, hit.normal);
-      ro += hit.len * rd + EPSILON * reflection;
-      rd = reflection;
-
-    } else {
-      if(spaceMask == 1.) {
-        color += attenuation * spaceColor(rd);
-      }
-      break;
-    }
+    color = diffuseColor + specularColor;
+  } else {
+    color = spaceColor(rd);
   }
-  return color;
+  
+  return color + atmosphereColor(ro, rd, spaceMask, hit);
 }
 
 //========//
 //  Main  //
 //========//
 
-vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
-  float planetDist = sphIntersect(ro, rd, getPlanet());
-  float moonDist = sphIntersect(ro, rd, Sphere(currentMoonPosition(), MOON_RADIUS));
-  float closestHit = planetDist;
-  if (planetDist < 0. || moonDist >= 0. && moonDist < planetDist) {
-    closestHit = moonDist;
-  }
-  vec3 position = ro + closestHit * rd;
-  
-  float distCameraToPlanetOrigin = length(uPlanetPosition - CAMERA_POSITION);
-  float distCameraToPlanetEdge = sqrt(distCameraToPlanetOrigin * distCameraToPlanetOrigin - uPlanetRadius * uPlanetRadius);
-  float distCameraToMoon = length(currentMoonPosition() - CAMERA_POSITION);
-  float isMoonInFront = smoothstep(-uPlanetRadius/2., uPlanetRadius/2., distCameraToPlanetEdge - distCameraToMoon);
-
-  float moonMask = (1.0 - spaceMask) * step(uPlanetRadius + EPSILON, length(position - uPlanetPosition));
-  float planetMask = 1.0 - spaceMask - moonMask;
-
-  vec3 coordFromCenter = (ro + rd * distCameraToPlanetEdge) - uPlanetPosition;
-  float distFromEdge = abs(length(coordFromCenter) - uPlanetRadius);
-  float planetEdge = max(1. - distFromEdge, 0.);
-  float atmosphereDensity = pow(remap(dot(uSunDirection, coordFromCenter), -2., 1., 0., 1.), 5.);
-
-  vec3 atmosphere = pow(planetEdge, 80.) * uAtmosphereColor;
-  atmosphere += pow(planetEdge, 30.) * uAtmosphereColor * (1.5 - planetMask);
-  atmosphere += pow(planetEdge, 4.) * uAtmosphereColor * .02;
-  atmosphere += pow(planetEdge, 2.) * uAtmosphereColor * .1 * planetMask;
-
-  return atmosphere * atmosphereDensity * (1. - moonMask * isMoonInFront);
-}
-
 void main() {
   vec3 ro = vec3(CAMERA_POSITION);
   vec3 rd = normalize(vec3(uv.x, uv.y, -1));
 
-  float spaceMask = 1.;
-
-  vec3 color = radiance(ro, rd, spaceMask);
-
-  color += atmosphereColor(ro, rd, spaceMask);
+  vec3 color = radiance(ro, rd);
 
   // color grading
   color = simpleReinhardToneMapping(color);
