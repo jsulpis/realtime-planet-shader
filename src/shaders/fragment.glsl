@@ -14,18 +14,35 @@ precision mediump sampler3D;
 in vec2 uv;
 out vec4 fragColor;
 
-// global uniforms
+//===================//
+//  Global uniforms  //
+//===================//
+
 uniform float uTime;
 uniform vec2 uResolution;
 uniform sampler3D noiseTexture;
 
-// controllable uniforms
+//==========================//
+//  Controllable  uniforms  //
+//==========================//
+
 uniform float uQuality;
 uniform vec3 uPlanetPosition;
 uniform float uPlanetRadius;
 uniform float uNoiseStrength;
+uniform float uCloudsDensity;
+uniform float uCloudsScale;
+uniform float uCloudsSpeed;
+uniform float uTerrainScale;
 uniform vec3 uAtmosphereColor;
+uniform float uAtmosphereDensity;
+uniform float uSunIntensity;
+uniform float uAmbientLight;
 in vec3 uSunDirection;
+
+//==========================================================//
+//  Constants (could be turned into controllable uniforms)  //
+//==========================================================//
 
 // Planets geometry
 #define ROTATION_SPEED -.1
@@ -53,9 +70,8 @@ in vec3 uSunDirection;
 #define TRANSITION .02
 
 // Lighting
-#define SUN_COLOR vec3(1.0, 1.0, 0.9) * 3.
-#define AMBIENT_LIGHT vec3(.002)
-#define SPACE_BLUE vec3(0., 0., 0.002)
+#define SUN_COLOR vec3(1.0, 1.0, 0.9)
+#define DEEP_SPACE vec3(0., 0., 0.002)
 
 // Ray tracing
 #define EPSILON 1e-3
@@ -67,7 +83,6 @@ in vec3 uSunDirection;
 //=========//
 //  Types  //
 //=========//
-
 
 struct Material {
   vec3 color;
@@ -86,8 +101,11 @@ struct Sphere {
   float radius;
 };
 
+// Note: I had created a struct for Ray but then deleted it because it caused artifacts on some mobile devices
+// because of a precision issue with struct (https://github.com/KhronosGroup/WebGL/issues/3351)
+// I use ro and rd instead in this shader.
+
 Hit miss = Hit(INFINITY, vec3(0.), Material(vec3(0.), -1., -1.));
-// Sphere planet = Sphere(uPlanetPosition, uPlanetRadius);
 
 Sphere getPlanet() {
   return Sphere(uPlanetPosition, uPlanetRadius);
@@ -96,7 +114,6 @@ Sphere getPlanet() {
 //===============================================//
 //  Generic utilities stolen from smarter people //
 //===============================================//
-
 
 float inverseLerp(float v, float minValue, float maxValue) {
   return (v - minValue) / (maxValue - minValue);
@@ -201,19 +218,14 @@ vec3 stars(in vec3 p) {
 
 // Comes from a course by SimonDev (https://www.youtube.com/channel/UCEwhtpXrg5MmwlH04ANpL8A)
 // https://simondev.teachable.com/p/glsl-shaders-from-scratch
-float domainWarpingFBM(vec3 p) {
-  int octaves = 3;
-  float persistence = .3;
-  float lacunarity = 5.;
-  float expo = 1.;
-
+float domainWarpingFBM(vec3 p, int octaves, float persistence, float lacunarity, float exponentiation) {
   vec3 offset = vec3(//
-    fbm(p, octaves, persistence, lacunarity, expo), //
-    fbm(p + vec3(43.235, 23.112, 0.0), octaves, persistence, lacunarity, expo), //
+    fbm(p, octaves, persistence, lacunarity, exponentiation), //
+    fbm(p + vec3(43.235, 23.112, 0.0), octaves, persistence, lacunarity, exponentiation), //
     0.0//
   );
 
-  return fbm(p + 1. * offset, 2, persistence, lacunarity, expo);
+  return fbm(p + 1. * offset, 2, persistence, lacunarity, exponentiation);
 }
 
 // Zavie - https://www.shadertoy.com/view/lslGzl
@@ -230,7 +242,7 @@ vec3 simpleReinhardToneMapping(vec3 color) {
 //========//
 
 float planetNoise(vec3 p) {
-  float fbm = fbm(p * .8, 6, .5, 2., 5.) * uNoiseStrength;
+  float fbm = fbm(p * uTerrainScale, 6, .5, 2., 5.) * uNoiseStrength;
 
   // Flatten the noise on the oceans
   return mix(//
@@ -274,7 +286,7 @@ vec3 spaceColor(vec3 direction) {
   vec3 backgroundCoord = direction * backgroundRotation;
   float spaceNoise = fbm(backgroundCoord * 3., 4, .5, 2., 6.);
 
-  return stars(backgroundCoord) + mix(SPACE_BLUE, uAtmosphereColor / 4., spaceNoise);
+  return stars(backgroundCoord) + mix(DEEP_SPACE, uAtmosphereColor / 4., spaceNoise);
 }
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask, Hit firstHit) {
@@ -291,14 +303,14 @@ vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask, Hit firstHit) {
   vec3 coordFromCenter = (ro + rd * distCameraToPlanetEdge) - uPlanetPosition;
   float distFromEdge = abs(length(coordFromCenter) - uPlanetRadius);
   float planetEdge = max(1. - distFromEdge, 0.);
-  float atmosphereDensity = pow(remap(dot(uSunDirection, coordFromCenter), -2., 1., 0., 1.), 5.);
+  float atmosphereMask = pow(remap(dot(uSunDirection, coordFromCenter), -uPlanetRadius, uPlanetRadius/2., 0., 1.), 5.) * uAtmosphereDensity * uPlanetRadius * uSunIntensity;
 
-  vec3 atmosphere = pow(planetEdge, 80.) * uAtmosphereColor;
-  atmosphere += pow(planetEdge, 30.) * uAtmosphereColor * (1.5 - planetMask);
-  atmosphere += pow(planetEdge, 4.) * uAtmosphereColor * .02;
-  atmosphere += pow(planetEdge, 2.) * uAtmosphereColor * .1 * planetMask;
+  vec3 atmosphere = vec3(pow(planetEdge, 80.));
+  atmosphere += pow(planetEdge, 30.) * (1.5 - planetMask);
+  atmosphere += pow(planetEdge, 4.) * .02;
+  atmosphere += pow(planetEdge, 2.) * .1 * planetMask;
 
-  return atmosphere * atmosphereDensity * (1. - moonMask * isMoonInFront);
+  return atmosphere * uAtmosphereColor * atmosphereMask * (1. - moonMask * isMoonInFront);
 }
 
 //===============//
@@ -324,9 +336,10 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
   color = mix(color, ROCK_COLOR, smoothstep(ROCK_LEVEL, ROCK_LEVEL + TRANSITION, altitude));
   color = mix(color, ICE_COLOR, smoothstep(ICE_LEVEL, ICE_LEVEL + TRANSITION, altitude));
 
-  vec3 cloudsCoord = rotateY(uTime * -.005) * rotatedCoord + vec3(uTime * .008);
-  float cloudsDensity = remap(domainWarpingFBM(cloudsCoord), -1.0, 1.0, 0.0, 1.0);
-  cloudsDensity *= smoothstep(.75, .85, cloudsDensity);
+  vec3 cloudsCoord = (rotatedCoord + vec3(uTime * .008 * uCloudsSpeed)) * uCloudsScale;
+  float cloudsDensity = remap(domainWarpingFBM(cloudsCoord, 3, .3, 5., uCloudsScale), -1.0, 1.0, 0.0, 1.0);
+  float cloudsThreshold = 1. - uCloudsDensity * .5;
+  cloudsDensity *= smoothstep(cloudsThreshold, cloudsThreshold + .1, cloudsDensity);
   cloudsDensity *= smoothstep(ROCK_LEVEL, (ROCK_LEVEL + TREE_LEVEL) / 2., altitude);
   color = mix(color, CLOUD_COLOR, cloudsDensity);
 
@@ -380,13 +393,13 @@ vec3 radiance(vec3 ro, vec3 rd) {
     );
 
     // Diffuse
-    float directLightIntensity = pow(clamp(dot(hit.normal, uSunDirection), 0.0, 1.0), 2.); // the power softens the shadow. Not physically accurate but it looks better to me
+    float directLightIntensity = pow(clamp(dot(hit.normal, uSunDirection), 0.0, 1.0), 2.) * uSunIntensity; // the power softens the shadow. Not physically accurate but it looks better to me
     vec3 diffuseLight = hitDirectLight * directLightIntensity * SUN_COLOR;
-    vec3 diffuseColor = hit.material.color.rgb * (AMBIENT_LIGHT + diffuseLight);
+    vec3 diffuseColor = hit.material.color.rgb * (uAmbientLight + diffuseLight);
 
     // Phong specular
     vec3 reflected = normalize(reflect(-uSunDirection, hit.normal));
-    float phongValue = pow(max(0.0, dot(rd, reflected)), 10.) * .6;
+    float phongValue = pow(max(0.0, dot(rd, reflected)), 10.) * .2 * uSunIntensity;
     vec3 specularColor = hit.material.specular * vec3(phongValue);
 
     color = diffuseColor + specularColor;

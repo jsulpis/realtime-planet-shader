@@ -4,10 +4,14 @@ export function addLightControls(
    pane: Pane,
    uniforms: Record<string, unknown>
 ) {
-   pane
-      .addFolder({ title: "Sun", expanded: window.innerHeight > 800 })
+   const light = pane.addFolder({
+      title: "Light",
+      expanded: window.innerHeight > 800,
+   });
+
+   light
       .addBinding({ pos: { x: 0, y: 0 } }, "pos", {
-         label: "Position",
+         label: "Sun position",
          picker: "inline",
          expanded: true,
          y: { inverted: true, min: -1, max: 1 },
@@ -16,4 +20,15 @@ export function addLightControls(
       .on("change", ({ value: { x, y } }) => {
          uniforms.sunDirectionXY = [x, y];
       });
+
+   light.addBinding(uniforms, "uSunIntensity", {
+      label: "Sun intensity",
+      min: 0,
+      max: 5,
+   });
+   light.addBinding(uniforms, "uAmbientLight", {
+      label: "Ambient light",
+      min: 0,
+      max: 0.006,
+   });
 }
