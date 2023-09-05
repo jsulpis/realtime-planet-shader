@@ -12,7 +12,11 @@ import { load3DNoiseTexture } from "./noiseTexture";
 import { Quality, addQualityControl } from "./controls/quality.controls";
 import { addPointerControls } from "./controls/pointer.controls";
 
-const { uniforms, renderer, canvas } = useGlslCanvas({
+const canvas = document.querySelector("canvas");
+
+load3DNoiseTexture(canvas).then(() => canvas.classList.add("loaded"));
+
+const { uniforms, renderer } = useGlslCanvas(canvas, {
    vertex: vertexShader,
    fragment: fragmentShader,
    uniforms: {
@@ -33,8 +37,6 @@ const { uniforms, renderer, canvas } = useGlslCanvas({
       sunDirectionXY: [1, 1],
    },
 });
-
-load3DNoiseTexture(renderer.gl);
 
 addPointerControls(canvas, uniforms);
 
