@@ -1,0 +1,100 @@
+// https://tweakpane.github.io/docs/theming/#builder
+:root {
+   --tp-base-background-color: hsla(230, 20%, 8%, 0.8);
+   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+   --tp-button-background-color: hsla(230, 10%, 80%, 1);
+   --tp-button-background-color-active: hsla(230, 10%, 95%, 1);
+   --tp-button-background-color-focus: hsla(230, 10%, 90%, 1);
+   --tp-button-background-color-hover: hsla(230, 10%, 85%, 1);
+   --tp-button-foreground-color: hsla(230, 20%, 11%, 1);
+   --tp-container-background-color: hsla(230, 25%, 14%, 0.8);
+   --tp-container-background-color-active: hsla(230, 25%, 31%, 0.8);
+   --tp-container-background-color-focus: hsla(230, 25%, 26%, 0.5);
+   --tp-container-background-color-hover: hsla(230, 25%, 21%, 0.4);
+   --tp-container-foreground-color: hsla(230, 10%, 90%, 1);
+   --tp-groove-foreground-color: hsla(230, 20%, 8%, 1);
+   --tp-input-background-color: hsla(230, 20%, 8%, 0.3);
+   --tp-input-background-color-active: hsla(230, 28%, 23%, 0.6);
+   --tp-input-background-color-focus: hsla(230, 28%, 18%, 0.5);
+   --tp-input-background-color-hover: hsla(230, 20%, 13%, 0.4);
+   --tp-input-foreground-color: hsla(230, 10%, 80%, 0.7);
+   --tp-label-foreground-color: hsla(230, 12%, 68%, 1);
+   --tp-monitor-background-color: hsla(230, 20%, 8%, 0.3);
+   --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1);
+}
+
+html,
+body,
+canvas {
+   height: 100%;
+}
+
+body {
+   margin: 0;
+   background: rgb(0, 0, 0.002);
+   font-family: sans-serif;
+   overflow: hidden;
+}
+
+canvas {
+   display: block;
+   cursor: grab;
+   user-select: none; /* avoid selecting things with long press on touch screens */
+   touch-action: none; /* prevent mobile browsers from conflicting with the pointermove event */
+   opacity: 0;
+
+   &.loaded {
+      opacity: 1;
+      transition: opacity 0.5s ease-out;
+   }
+
+   &.grabbing {
+      cursor: grabbing;
+   }
+}
+
+.meta {
+   position: absolute;
+   bottom: 0.5em;
+   right: 1em;
+   font-style: italic;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: hsla(0, 0%, 100%, 0.5);
+
+   a {
+      color: hsla(0, 0%, 100%, 0.7);
+      font-weight: bold;
+   }
+
+   a.icon {
+      display: inline-flex;
+      height: 2.5em;
+      width: 2.5em;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      margin-left: 0.5em;
+
+      &:hover,
+      &:focus-visible {
+         background: hsla(0, 0%, 100%, 0.1);
+      }
+   }
+
+   svg {
+      fill: currentColor;
+      vertical-align: middle;
+      flex-shrink: 0;
+      height: 1.2em;
+      width: auto;
+   }
+}
+
+@media screen and (max-width: 600px) {
+   .meta {
+      bottom: 0.5em;
+      left: 3em;
+   }
+}

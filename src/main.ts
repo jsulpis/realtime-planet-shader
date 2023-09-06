@@ -1,5 +1,3 @@
-import "./style.css";
-
 import { Pane } from "tweakpane";
 
 import { useGlslCanvas } from "./renderer";

@@ -10,7 +10,7 @@ export function addLightControls(
    });
 
    light
-      .addBinding({ pos: { x: 0, y: 0 } }, "pos", {
+      .addBinding({ pos: { x: 1, y: 1 } }, "pos", {
          label: "Sun position",
          picker: "inline",
          expanded: true,

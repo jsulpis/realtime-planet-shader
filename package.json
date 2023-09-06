@@ -11,6 +11,7 @@
    "devDependencies": {
       "@tweakpane/core": "2.0.0",
       "four": "npm:fourwastaken@0.2.0",
+      "sass": "1.66.1",
       "tweakpane": "4.0.0",
       "typescript": "5.1.6",
       "vite": "4.4.9",
