@@ -38,6 +38,7 @@ body {
 
 canvas {
    display: block;
+   width: 100%;
    cursor: grab;
    user-select: none; /* avoid selecting things with long press on touch screens */
    touch-action: none; /* prevent mobile browsers from conflicting with the pointermove event */
