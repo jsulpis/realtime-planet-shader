@@ -3,6 +3,6 @@ import glsl from "vite-plugin-glsl";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-   base: "/shader-planet",
+   base: "/realtime-planet-shader",
    plugins: [glsl(), topLevelAwait()], // top-level await present in the "four" library
 });

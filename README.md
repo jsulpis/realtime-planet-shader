@@ -1,13 +1,13 @@
 # Realtime procedural planet shader in WebGL
 
-<img src="https://github.com/jsulpis/shader-planet/assets/22420399/033dbfc3-aafa-4448-af63-c79b427659a8" alt="screenshot of the shader" />
+<img src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/033dbfc3-aafa-4448-af63-c79b427659a8" alt="screenshot of the shader" />
 
 <br/>
 <br/>
 
 <span align="center">
   
-  [live demo](https://jsulpis.github.io/shader-planet/)
+  [live demo](https://jsulpis.github.io/realtime-planet-shader/)
 
 </span>
 
@@ -28,6 +28,6 @@ It runs at 60fps on my old low-end phone, so it should also be quite smooth on w
 
 More samples:
 
-<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/shader-planet/assets/22420399/1b0343c1-727e-47e3-aa03-81fe84d6a6bc">
-<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/shader-planet/assets/22420399/31b4d3f9-30b4-458d-90bf-ea63c2d052b0">
-<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/shader-planet/assets/22420399/4a9aef98-61cf-4bd2-bdb4-fc9deea144a2">
+<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/1b0343c1-727e-47e3-aa03-81fe84d6a6bc">
+<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/31b4d3f9-30b4-458d-90bf-ea63c2d052b0">
+<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/4a9aef98-61cf-4bd2-bdb4-fc9deea144a2">

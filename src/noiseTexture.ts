@@ -2,7 +2,7 @@
  * 3D texture file borrowed from Shadertoy
  */
 export async function load3DNoiseTexture(canvas: HTMLCanvasElement) {
-   const response = await fetch("/shader-planet/3DNoise.bin");
+   const response = await fetch("/realtime-planet-shader/3DNoise.bin");
    const binaryData = await response.arrayBuffer();
 
    const gl = canvas.getContext("webgl2");
