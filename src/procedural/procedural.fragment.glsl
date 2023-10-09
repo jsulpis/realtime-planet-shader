@@ -19,6 +19,7 @@ out vec4 fragColor;
 //===================//
 
 uniform float uTime;
+uniform float uRotationOffset;
 uniform vec2 uResolution;
 uniform sampler3D uNoiseTexture;
 
@@ -46,7 +47,7 @@ in vec3 uSunDirection;
 
 // Planets geometry
 #define ROTATION_SPEED -.1
-#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED)
+#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED - uRotationOffset)
 
 #define MOON_RADIUS .08
 #define MOON_ROTATION_SPEED ROTATION_SPEED * 5.

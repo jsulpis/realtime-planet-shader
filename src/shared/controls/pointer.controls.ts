@@ -16,6 +16,9 @@ export function addPointerControls(
       const clientX = getClientX(e);
 
       const currentTime = Date.now();
+      if (currentTime === previousTime) {
+         return;
+      }
       deltaTime = currentTime - previousTime;
       const deltaPos = clientX - lastPointerPos;
       velocity = deltaPos / deltaTime;
