@@ -22,6 +22,7 @@ out vec4 fragColor;
 //===================//
 
 uniform float uTime;
+uniform float uRotationOffset;
 uniform vec2 uResolution;
 uniform sampler2D uNoiseTexture;
 uniform sampler2D uFbmTexture;
@@ -53,7 +54,7 @@ in vec3 uSunDirection;
 
 // Planets geometry
 #define ROTATION_SPEED -.1
-#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED)
+#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED - uRotationOffset)
 
 // Planet colors
 #define CLOUD_COLOR vec3(1., 1., 1.)

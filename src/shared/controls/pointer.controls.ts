@@ -4,27 +4,30 @@ export function addPointerControls(
    canvas: HTMLCanvasElement,
    uniforms: CustomUniforms
 ) {
-   function updatePlanetPosition(e: PointerEvent | TouchEvent) {
-      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+   let lastPointerPos = 0;
 
+   function updateRotationOffset(e: PointerEvent | TouchEvent) {
+      const clientX = getClientX(e);
       const multiplier = 10 / Math.max(window.innerWidth, window.innerHeight); // don't really know why this works, but it does
 
-      const posX = (clientX - canvas.clientWidth / 2) * multiplier;
-      const posY = -1 * (clientY - canvas.clientHeight / 2) * multiplier;
+      uniforms.uRotationOffset += (clientX - lastPointerPos) * multiplier;;
 
-      uniforms.uPlanetPosition = [posX, posY, 0];
+      lastPointerPos = clientX;
    }
 
-   canvas.addEventListener("pointerdown", (e) => {
+   canvas.addEventListener("pointerdown", (e: PointerEvent | TouchEvent) => {
       canvas.classList.add("grabbing");
-      updatePlanetPosition(e);
+      lastPointerPos = getClientX(e);
 
-      canvas.addEventListener("pointermove", updatePlanetPosition);
+      canvas.addEventListener("pointermove", updateRotationOffset);
 
       canvas.addEventListener("pointerup", () => {
          canvas.classList.remove("grabbing");
-         canvas.removeEventListener("pointermove", updatePlanetPosition);
+         canvas.removeEventListener("pointermove", updateRotationOffset);
       });
    });
+}
+
+function getClientX(e: PointerEvent | TouchEvent) {
+   return "touches" in e ? e.touches[0].clientX : e.clientX;
 }
