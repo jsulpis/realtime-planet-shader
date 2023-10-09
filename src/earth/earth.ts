@@ -6,47 +6,49 @@ import fragmentShader from "./earth.fragment.glsl";
 import { addPlanetControls } from "../shared/controls/planet.controls";
 import { addLightControls } from "../shared/controls/light.controls";
 import { addMonitor } from "../shared/controls/monitor.controls";
-import { loadImageTexture } from "../shared/loaders/texture.loaders";
 import { addQualityControl } from "../shared/controls/quality.controls";
 import { addPointerControls } from "../shared/controls/pointer.controls";
 import { defaultQuality } from "../shared/settings/quality";
+import { SamplerOptions } from "four";
+import { loadTexture } from "./texture.loader";
 
-const earthColor = await loadImageTexture(
-   "/realtime-planet-shader/2k_earth_color.jpeg",
-   2048,
-   1024
-);
-const earthNightColor = await loadImageTexture(
-   "/realtime-planet-shader/2k_earth_night.jpeg",
-   2048,
-   1024
-);
-const earthClouds = await loadImageTexture(
-   "/realtime-planet-shader/2k_earth_clouds.jpeg",
-   2048,
-   1024
-);
-const earthSpecular = await loadImageTexture(
-   "/realtime-planet-shader/2k_earth_specular.jpeg",
-   2048,
-   1024
-);
-const earthBump = await loadImageTexture(
-   "/realtime-planet-shader/2k_earth_bump.jpg",
-   2048,
-   1024
-);
-const noiseMap = await loadImageTexture(
-   "/realtime-planet-shader/noise.jpg",
-   512,
-   512,
-   { minFilter: "linear", magFilter: "linear" }
-);
-const fbmMap = await loadImageTexture(
-   "/realtime-planet-shader/fbm.jpg",
-   512,
-   512,
-   { minFilter: "linear", magFilter: "linear" }
+const linearFilter: Partial<SamplerOptions> = {
+   minFilter: "linear",
+   magFilter: "linear",
+};
+
+const textures = [
+   { path: "2k_earth_color.jpeg" },
+   { path: "2k_earth_night.jpeg" },
+   { path: "2k_earth_clouds.jpeg" },
+   { path: "2k_earth_specular.jpeg" },
+   { path: "2k_earth_bump.jpg" },
+   {
+      path: "noise.jpg",
+      width: 512,
+      height: 512,
+      options: linearFilter,
+   },
+   {
+      path: "fbm.jpg",
+      width: 512,
+      height: 512,
+      options: linearFilter,
+   },
+];
+
+const [
+   earthColor,
+   earthNightColor,
+   earthClouds,
+   earthSpecular,
+   earthBump,
+   noiseMap,
+   fbmMap,
+] = await Promise.all(
+   textures.map(({ path, width = 2048, height = 1024, options }) =>
+      loadTexture(`/realtime-planet-shader/${path}`, width, height, options)
+   )
 );
 
 const canvas = document.querySelector("canvas");
@@ -58,7 +60,7 @@ const defaultUniforms = {
    uResolution: [window.innerWidth, window.innerHeight],
    uPlanetPosition: [0, 0, 0],
    uPlanetRadius: 2,
-   uCloudsDensity: .5,
+   uCloudsDensity: 0.5,
    uCloudsScale: 1,
    uCloudsSpeed: 1,
    uAtmosphereColor: [0.05, 0.3, 0.9],

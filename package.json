@@ -6,7 +6,8 @@
    "scripts": {
       "build": "tsc && vite build",
       "dev": "vite",
-      "preview": "vite preview"
+      "preview": "vite preview",
+      "serve": "pnpm build && pnpm preview"
    },
    "devDependencies": {
       "@tweakpane/core": "2.0.0",
