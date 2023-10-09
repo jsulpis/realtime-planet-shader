@@ -46,11 +46,11 @@ in vec3 uSunDirection;
 //==========================================================//
 
 // Planets geometry
-#define ROTATION_SPEED -.1
-#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED - uRotationOffset)
+#define ROTATION_SPEED .1
+#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED + uRotationOffset)
 
 #define MOON_RADIUS .08
-#define MOON_ROTATION_SPEED ROTATION_SPEED * 5.
+#define MOON_ROTATION_SPEED - ROTATION_SPEED * 5.
 #define MOON_OFFSET vec3(uPlanetRadius * 1.2, uPlanetRadius / 4., 0.)
 #define MOON_ROTATION_AXIS (MOON_OFFSET - uPlanetPosition) * rotateZ(PI/2.)
 
@@ -261,7 +261,7 @@ float planetDist(in vec3 ro, in vec3 rd) {
   float smoothSphereDist = sphIntersect(ro, rd, getPlanet());
 
   vec3 intersection = ro + smoothSphereDist * rd;
-  vec3 intersectionWithRotation = (intersection - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
+  vec3 intersectionWithRotation = PLANET_ROTATION * (intersection - uPlanetPosition) + uPlanetPosition;
 
   return sphIntersect(ro, rd, Sphere(uPlanetPosition, uPlanetRadius + planetNoise(intersectionWithRotation)));
 }
@@ -283,7 +283,7 @@ vec3 currentMoonPosition() {
 }
 
 vec3 spaceColor(vec3 direction) {
-  mat3 backgroundRotation = rotateY(-uTime * ROTATION_SPEED / 4.);
+  mat3 backgroundRotation = rotateY(uTime * ROTATION_SPEED / 4.);
   vec3 backgroundCoord = direction * backgroundRotation;
   float spaceNoise = fbm(backgroundCoord * 3., 4, .5, 2., 6.);
 
@@ -326,7 +326,7 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
   }
 
   vec3 position = ro + len * rd;
-  vec3 rotatedCoord = (position - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
+  vec3 rotatedCoord = PLANET_ROTATION * (position - uPlanetPosition) + uPlanetPosition;
   float altitude = 5. * planetNoise(rotatedCoord);
 
   vec3 normal = planetNormal(position);

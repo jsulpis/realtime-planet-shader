@@ -53,8 +53,8 @@ in vec3 uSunDirection;
 //==========================================================//
 
 // Planets geometry
-#define ROTATION_SPEED -.1
-#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED - uRotationOffset)
+#define ROTATION_SPEED .1
+#define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED + uRotationOffset)
 
 // Planet colors
 #define CLOUD_COLOR vec3(1., 1., 1.)
@@ -203,7 +203,7 @@ float planetDist(in vec3 ro, in vec3 rd) {
   float smoothSphereDist = sphIntersect(ro, rd, getPlanet());
 
   vec3 intersection = ro + smoothSphereDist * rd;
-  vec3 intersectionWithRotation = (intersection - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
+  vec3 intersectionWithRotation = PLANET_ROTATION * (intersection - uPlanetPosition) + uPlanetPosition;
 
   return sphIntersect(ro, rd, Sphere(uPlanetPosition, uPlanetRadius + planetNoise(intersectionWithRotation)));
 }
@@ -220,7 +220,7 @@ vec3 planetNormal(vec3 p) {
 }
 
 vec3 spaceColor(vec3 direction) {
-  vec3 backgroundCoord = direction * rotateY(-uTime * ROTATION_SPEED / 4.);
+  vec3 backgroundCoord = direction * rotateY(uTime * ROTATION_SPEED / 4.);
   float spaceNoise = fbmNoise(backgroundCoord * .5);
   vec3 spaceDust = mix(DEEP_SPACE, uAtmosphereColor / 4., spaceNoise);
 
@@ -258,7 +258,7 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
   }
 
   vec3 position = ro + len * rd;
-  vec3 rotatedPosition = (position - uPlanetPosition) * PLANET_ROTATION + uPlanetPosition;
+  vec3 rotatedPosition = PLANET_ROTATION * (position - uPlanetPosition) + uPlanetPosition;
   vec3 localPosition = rotatedPosition - uPlanetPosition;
 
   vec2 textureCoord = sphereProjection(localPosition, uPlanetPosition, uPlanetRadius);
