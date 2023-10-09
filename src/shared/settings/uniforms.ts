@@ -5,7 +5,7 @@ export const defaultUniforms = {
    uQuality: defaultQuality,
    uResolution: [window.innerWidth, window.innerHeight],
    uPlanetPosition: [0, 0, 0],
-   uRotationOffset: 2.3,
+   uRotationOffset: .8,
    uPlanetRadius: 2,
    uNoiseStrength: 0.2,
    uTerrainScale: 0.8,
