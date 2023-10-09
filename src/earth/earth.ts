@@ -67,12 +67,12 @@ const defaultUniforms = {
    uSunIntensity: 3,
    sunDirectionXY: [1, 1],
    uEarthColor: earthColor,
+   uEarthNight: earthNightColor,
    uEarthClouds: earthClouds,
    uEarthSpecular: earthSpecular,
    uEarthBump: earthBump,
-   uEarthNight: earthNightColor,
-   noiseTexture: noiseMap,
-   fbmTexture: fbmMap,
+   uNoiseTexture: noiseMap,
+   uFbmTexture: fbmMap,
 };
 
 const { uniforms, renderer } = useGlslCanvas(canvas, {

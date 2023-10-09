@@ -20,7 +20,7 @@ out vec4 fragColor;
 
 uniform float uTime;
 uniform vec2 uResolution;
-uniform sampler3D noiseTexture;
+uniform sampler3D uNoiseTexture;
 
 //==========================//
 //  Controllable  uniforms  //
@@ -125,7 +125,7 @@ float remap(float v, float inMin, float inMax, float outMin, float outMax) {
 }
 
 float noise(vec3 p) {
-  return texture(noiseTexture, p * .05).r;
+  return texture(uNoiseTexture, p * .05).r;
 }
 
 // https://iquilezles.org/articles/intersectors/

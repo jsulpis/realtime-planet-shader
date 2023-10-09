@@ -23,8 +23,8 @@ out vec4 fragColor;
 
 uniform float uTime;
 uniform vec2 uResolution;
-uniform sampler2D noiseTexture;
-uniform sampler2D fbmTexture;
+uniform sampler2D uNoiseTexture;
+uniform sampler2D uFbmTexture;
 uniform sampler2D uEarthColor;
 uniform sampler2D uEarthClouds;
 uniform sampler2D uEarthNormal;
@@ -121,7 +121,7 @@ vec2 sphereProjection(vec3 p, vec3 origin, float radius) {
 }
 
 float noise(vec2 p) {
-  return texture(noiseTexture, p * .5).r;
+  return texture(uNoiseTexture, p * .5).r;
 }
 
 float noise(vec3 p) {
@@ -146,7 +146,7 @@ float fbmNoise(vec3 p) {
   float radius = length(p);
   vec2 textureCoord = sphereProjection(p, vec3(0.), radius);
 
-  return pow(texture(fbmTexture, radius * 3. * textureCoord).r, 10.) * 0.15;
+  return pow(texture(uFbmTexture, radius * 3. * textureCoord).r, 10.) * 0.15;
 }
 
 mat3 rotateY(float angle) {
