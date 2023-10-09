@@ -1,5 +1,3 @@
-import { Pane } from "tweakpane";
-
 import { useGlslCanvas } from "../shared/renderer";
 import vertexShader from "../shared/shaders/vertex.glsl";
 import fragmentShader from "./earth.fragment.glsl";
@@ -8,9 +6,9 @@ import { addLightControls } from "../shared/controls/light.controls";
 import { addMonitor } from "../shared/controls/monitor.controls";
 import { addQualityControl } from "../shared/controls/quality.controls";
 import { addPointerControls } from "../shared/controls/pointer.controls";
-import { defaultQuality } from "../shared/settings/quality";
 import { SamplerOptions } from "four";
 import { loadTexture } from "./texture.loader";
+import { defaultUniforms } from "../shared/settings/uniforms";
 
 const linearFilter: Partial<SamplerOptions> = {
    minFilter: "linear",
@@ -52,40 +50,28 @@ const [
 );
 
 const canvas = document.querySelector("canvas");
-canvas.classList.add("loaded");
-
-const defaultUniforms = {
-   uTime: 0.0,
-   uQuality: defaultQuality,
-   uResolution: [window.innerWidth, window.innerHeight],
-   uPlanetPosition: [0, 0, 0],
-   uPlanetRadius: 2,
-   uCloudsDensity: 0.5,
-   uCloudsScale: 1,
-   uCloudsSpeed: 1,
-   uAtmosphereColor: [0.05, 0.3, 0.9],
-   uAtmosphereDensity: 0.2,
-   uAmbientLight: 0.002,
-   uSunIntensity: 3,
-   sunDirectionXY: [1, 1],
-   uEarthColor: earthColor,
-   uEarthNight: earthNightColor,
-   uEarthClouds: earthClouds,
-   uEarthSpecular: earthSpecular,
-   uEarthBump: earthBump,
-   uNoiseTexture: noiseMap,
-   uFbmTexture: fbmMap,
-};
 
 const { uniforms, renderer } = useGlslCanvas(canvas, {
    vertex: vertexShader,
    fragment: fragmentShader,
-   uniforms: defaultUniforms,
+   uniforms: {
+      ...defaultUniforms,
+      uEarthColor: earthColor,
+      uEarthNight: earthNightColor,
+      uEarthClouds: earthClouds,
+      uEarthSpecular: earthSpecular,
+      uEarthBump: earthBump,
+      uNoiseTexture: noiseMap,
+      uFbmTexture: fbmMap,
+   },
 });
 
+canvas.classList.add("loaded");
 addPointerControls(canvas, uniforms);
 
-const pane = new Pane({ title: "Controls", expanded: true });
+const { Pane } = await import("tweakpane");
+
+const pane = new Pane({ title: "Controls" });
 
 addQualityControl(pane, uniforms, renderer);
 addPlanetControls(pane, uniforms);

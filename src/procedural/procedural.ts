@@ -1,5 +1,3 @@
-import { Pane } from "tweakpane";
-
 import { useGlslCanvas } from "../shared/renderer";
 import vertexShader from "../shared/shaders/vertex.glsl";
 import fragmentShader from "./procedural.fragment.glsl";
@@ -15,15 +13,16 @@ const canvas = document.querySelector("canvas");
 
 await load3DNoiseTexture(canvas.getContext("webgl2"));
 
-canvas.classList.add("loaded");
-
 const { uniforms, renderer } = useGlslCanvas(canvas, {
    vertex: vertexShader,
    fragment: fragmentShader,
    uniforms: defaultUniforms,
 });
 
+canvas.classList.add("loaded");
 addPointerControls(canvas, uniforms);
+
+const { Pane } = await import("tweakpane");
 
 const pane = new Pane({ title: "Controls" });
 
