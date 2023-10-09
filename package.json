@@ -10,6 +10,7 @@
    },
    "devDependencies": {
       "@tweakpane/core": "2.0.0",
+      "@types/node": "20.8.3",
       "four": "npm:fourwastaken@0.2.0",
       "sass": "1.66.1",
       "tweakpane": "4.0.0",

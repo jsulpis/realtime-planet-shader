@@ -5,6 +5,7 @@ import {
    Geometry,
    Mesh,
 } from "four";
+import { CustomUniforms } from "./settings/uniforms";
 
 function flatten<T>(array: T[][]): T[] {
    return array.reduce((acc, val) => acc.concat(val), []);
@@ -82,7 +83,7 @@ export function useGlslCanvas(
    return {
       renderer,
       raf,
-      uniforms: mesh.material.uniforms,
+      uniforms: mesh.material.uniforms as CustomUniforms,
       canvas: renderer.canvas,
    };
 }

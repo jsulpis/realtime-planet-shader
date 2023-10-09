@@ -1,9 +1,7 @@
 import { Pane } from "tweakpane";
+import { CustomUniforms } from "../settings/uniforms";
 
-export function addPlanetControls(
-   pane: Pane,
-   uniforms: Record<string, unknown>
-) {
+export function addPlanetControls(pane: Pane, uniforms: CustomUniforms) {
    const planetFolder = pane.addFolder({
       title: "Planet",
       expanded: window.innerHeight > 800,
@@ -29,16 +27,20 @@ export function addPlanetControls(
       max: 5,
    });
 
-   terrain.addBinding(uniforms, "uNoiseStrength", {
-      label: "Height",
-      min: 0,
-      max: 0.4,
-   });
-   terrain.addBinding(uniforms, "uTerrainScale", {
-      label: "Scale",
-      min: 0.2,
-      max: 1.5,
-   });
+   if (uniforms.uNoiseStrength != undefined) {
+      terrain.addBinding(uniforms, "uNoiseStrength", {
+         label: "Height",
+         min: 0,
+         max: 0.4,
+      });
+   }
+   if (uniforms.uTerrainScale != undefined) {
+      terrain.addBinding(uniforms, "uTerrainScale", {
+         label: "Scale",
+         min: 0.2,
+         max: 1.5,
+      });
+   }
 
    clouds.addBinding(uniforms, "uCloudsDensity", {
       label: "Density",

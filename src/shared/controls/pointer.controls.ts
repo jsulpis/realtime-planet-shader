@@ -1,6 +1,8 @@
+import { CustomUniforms } from "../settings/uniforms";
+
 export function addPointerControls(
    canvas: HTMLCanvasElement,
-   uniforms: Record<string, unknown>
+   uniforms: CustomUniforms
 ) {
    function updatePlanetPosition(e: PointerEvent | TouchEvent) {
       const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;

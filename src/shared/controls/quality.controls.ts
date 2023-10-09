@@ -1,15 +1,11 @@
 import { WebGLRenderer } from "four";
 import { ListBladeApi, Pane } from "tweakpane";
-
-export enum Quality {
-   LOW = 0.5,
-   MEDIUM = 1,
-   OPTIMAL = 2,
-}
+import { Quality, defaultQuality } from "../settings/quality";
+import { CustomUniforms } from "../settings/uniforms";
 
 export function addQualityControl(
    pane: Pane,
-   uniforms: Record<string, unknown>,
+   uniforms: CustomUniforms,
    renderer: WebGLRenderer
 ) {
    (
@@ -21,10 +17,12 @@ export function addQualityControl(
             { text: "medium", value: Quality.MEDIUM },
             { text: "optimal", value: Quality.OPTIMAL },
          ],
-         value: window.innerWidth < 800 ? Quality.MEDIUM : Quality.OPTIMAL,
+         value: defaultQuality,
       }) as ListBladeApi<Quality>
    ).on("change", ({ value }) => {
       uniforms.uQuality = value;
       renderer.setSize(window.innerWidth * value, window.innerHeight * value);
    });
 }
+export { Quality };
+
