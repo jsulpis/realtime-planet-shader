@@ -4,7 +4,6 @@ import fragmentShader from "./earth.fragment.glsl";
 import { addPlanetControls } from "../shared/controls/planet.controls";
 import { addLightControls } from "../shared/controls/light.controls";
 import { addMonitor } from "../shared/controls/monitor.controls";
-import { addQualityControl } from "../shared/controls/quality.controls";
 import { addPointerControls } from "../shared/controls/pointer.controls";
 import { loadTexture } from "./texture.loader";
 import { defaultUniforms } from "../shared/settings/uniforms";
@@ -33,11 +32,13 @@ const [
 
 const canvas = document.querySelector("canvas");
 
-const { uniforms, renderer } = useGlslCanvas(canvas, {
+const { uniforms } = useGlslCanvas(canvas, {
    vertex: vertexShader,
    fragment: fragmentShader,
    uniforms: {
       ...defaultUniforms,
+      uCloudsScale: -1,
+      uCloudsSpeed: -1,
       uQuality: Math.min(window.devicePixelRatio, 2),
       uEarthColor,
       uEarthNight,
@@ -55,7 +56,6 @@ const { Pane } = await import("tweakpane");
 
 const pane = new Pane({ title: "Controls", expanded: false });
 
-addQualityControl(pane, uniforms, renderer);
-addPlanetControls(pane, uniforms);
+addPlanetControls(pane, uniforms, { geometry: false, terrain: false });
 addLightControls(pane, uniforms);
 addMonitor(pane);

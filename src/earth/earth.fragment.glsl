@@ -39,7 +39,7 @@ in vec3 uSunDirection;
 //  Constants (could be turned into controllable uniforms)  //
 //==========================================================//
 
-// Planets geometry
+// Planet geometry
 #define ROTATION_SPEED .1
 #define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED + uRotationOffset)
 
@@ -225,7 +225,8 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
 
   float cloudsDensity = texture(uEarthClouds, textureCoord).r;
   float cloudsThreshold = 1. - uCloudsDensity;
-  cloudsDensity *= smoothstep(cloudsThreshold - .2, cloudsThreshold, cloudsDensity);
+  float smoothness = uCloudsDensity * (1. - uCloudsDensity);
+  cloudsDensity *= smoothstep(cloudsThreshold - smoothness, cloudsThreshold, cloudsDensity);
   color = mix(color, CLOUD_COLOR, cloudsDensity);
 
   return Hit(len, normal, Material(color, 1., specular, nightColor));
