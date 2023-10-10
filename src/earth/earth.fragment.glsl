@@ -1,12 +1,3 @@
-//=======================================================================================//
-// Procedural Blue Planet by Julien Sulpis (https://twitter.com/jsulpis)                  
-//
-// https://www.shadertoy.com/view/Ds3XRl
-//
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
-//
-//=======================================================================================//
-
 #version 300 es
 
 precision highp float;
@@ -24,24 +15,20 @@ out vec4 fragColor;
 uniform float uTime;
 uniform float uRotationOffset;
 uniform vec2 uResolution;
-uniform sampler2D uNoiseTexture;
-uniform sampler2D uFbmTexture;
 uniform sampler2D uEarthColor;
 uniform sampler2D uEarthClouds;
-uniform sampler2D uEarthNormal;
 uniform sampler2D uEarthSpecular;
 uniform sampler2D uEarthBump;
 uniform sampler2D uEarthNight;
+uniform sampler2D uStars;
 
 //==========================//
 //  Controllable  uniforms  //
 //==========================//
 
-uniform float uQuality;
 uniform vec3 uPlanetPosition;
 uniform float uPlanetRadius;
 uniform float uCloudsDensity;
-uniform float uCloudsSpeed;
 uniform vec3 uAtmosphereColor;
 uniform float uAtmosphereDensity;
 uniform float uSunIntensity;
@@ -61,7 +48,7 @@ in vec3 uSunDirection;
 
 // Lighting
 #define SUN_COLOR vec3(1.0, 1.0, 0.9)
-#define DEEP_SPACE vec3(0., 0., 0.002)
+#define DEEP_SPACE vec3(0., 0., 0.001)
 
 // Ray tracing
 #define INFINITY 1e10
@@ -121,17 +108,6 @@ vec2 sphereProjection(vec3 p, vec3 origin, float radius) {
   );
 }
 
-float noise(vec2 p) {
-  return texture(uNoiseTexture, p * .5).r;
-}
-
-float noise(vec3 p) {
-  float radius = length(p);
-  vec2 textureCoord = sphereProjection(p, vec3(0.), radius);
-
-  return noise(radius * textureCoord);
-}
-
 // https://iquilezles.org/articles/intersectors/
 float sphIntersect(in vec3 ro, in vec3 rd, in Sphere sphere) {
   vec3 oc = ro - sphere.position;
@@ -143,13 +119,6 @@ float sphIntersect(in vec3 ro, in vec3 rd, in Sphere sphere) {
   return -b - sqrt(h);
 }
 
-float fbmNoise(vec3 p) {
-  float radius = length(p);
-  vec2 textureCoord = sphereProjection(p, vec3(0.), radius);
-
-  return pow(texture(uFbmTexture, radius * 3. * textureCoord).r, 10.) * 0.15;
-}
-
 mat3 rotateY(float angle) {
   float c = cos(angle);
   float s = sin(angle);
@@ -158,24 +127,6 @@ mat3 rotateY(float angle) {
   vec3(0, 1, 0),//
   vec3(-s, 0, c)//
   );
-}
-
-// nimitz - https://www.shadertoy.com/view/XsyGWV
-// I reused the 3D noise texture instead of nimitz's hash function for better performance
-vec3 stars(in vec3 p) {
-  vec3 c = vec3(0.);
-  float res = uResolution.x * uQuality * 0.8;
-
-  for(float i = 0.; i < 3.; i++) {
-    vec3 q = fract(p * (.15 * res)) - 0.5;
-    vec3 id = floor(p * (.15 * res));
-    vec2 rn = vec2(noise(id / 2.), noise(id.zyx * 2.)) * .05;
-    float c2 = 1. - smoothstep(0., .6, length(q));
-    c2 *= step(rn.x, .003 + i * 0.0005);
-    c += c2 * (mix(vec3(1.0, 0.49, 0.1), vec3(0.75, 0.9, 1.), rn.y) * 0.25 + 1.2);
-    p *= 1.8;
-  }
-  return c * c;
 }
 
 // Zavie - https://www.shadertoy.com/view/lslGzl
@@ -221,10 +172,12 @@ vec3 planetNormal(vec3 p) {
 
 vec3 spaceColor(vec3 direction) {
   vec3 backgroundCoord = direction * rotateY(uTime * ROTATION_SPEED / 4.);
-  float spaceNoise = fbmNoise(backgroundCoord * .5);
-  vec3 spaceDust = mix(DEEP_SPACE, uAtmosphereColor / 4., spaceNoise);
 
-  return stars(backgroundCoord) + spaceDust;
+  float radius = length(backgroundCoord);
+  vec2 textureCoord = sphereProjection(backgroundCoord, vec3(0.), radius);
+  vec3 stars = texture(uStars, textureCoord).rgb;
+
+  return DEEP_SPACE + stars * stars * stars * .6;
 }
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
@@ -259,9 +212,8 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
 
   vec3 position = ro + len * rd;
   vec3 rotatedPosition = PLANET_ROTATION * (position - uPlanetPosition) + uPlanetPosition;
-  vec3 localPosition = rotatedPosition - uPlanetPosition;
 
-  vec2 textureCoord = sphereProjection(localPosition, uPlanetPosition, uPlanetRadius);
+  vec2 textureCoord = sphereProjection(rotatedPosition, uPlanetPosition, uPlanetRadius);
   vec3 color = texture(uEarthColor, textureCoord).rgb;
 
   vec3 normal = planetNormal(position);
