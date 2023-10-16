@@ -13,7 +13,7 @@ export const defaultUniforms = {
    uCloudsScale: 1,
    uCloudsSpeed: 1,
    uAtmosphereColor: [0.05, 0.3, 0.9],
-   uAtmosphereDensity: 0.2,
+   uAtmosphereDensity: 0.4,
    uAmbientLight: 0.002,
    uSunIntensity: 3,
    sunDirectionXY: [1, 1],

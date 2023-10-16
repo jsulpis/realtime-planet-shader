@@ -303,13 +303,14 @@ vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask, Hit firstHit) {
 
   vec3 coordFromCenter = (ro + rd * distCameraToPlanetEdge) - uPlanetPosition;
   float distFromEdge = abs(length(coordFromCenter) - uPlanetRadius);
-  float planetEdge = max(1. - distFromEdge, 0.);
-  float atmosphereMask = pow(remap(dot(uSunDirection, coordFromCenter), -uPlanetRadius, uPlanetRadius/2., 0., 1.), 5.) * uAtmosphereDensity * uPlanetRadius * uSunIntensity;
+  float planetEdge = max(uPlanetRadius - distFromEdge, 0.) / uPlanetRadius;
+  float atmosphereMask = pow(remap(dot(uSunDirection, coordFromCenter), -uPlanetRadius, uPlanetRadius / 2., 0., 1.), 5.);
+  atmosphereMask *= uAtmosphereDensity * uPlanetRadius * uSunIntensity;
 
-  vec3 atmosphere = vec3(pow(planetEdge, 80.));
-  atmosphere += pow(planetEdge, 30.) * (1.5 - planetMask);
-  atmosphere += pow(planetEdge, 4.) * .02;
-  atmosphere += pow(planetEdge, 2.) * .1 * planetMask;
+  vec3 atmosphere = vec3(pow(planetEdge, 120.)) * .5;
+  atmosphere += pow(planetEdge, 50.) * .3 * (1.5 - planetMask);
+  atmosphere += pow(planetEdge, 15.) * .03;
+  atmosphere += pow(planetEdge, 5.) * .04 * planetMask;
 
   return atmosphere * uAtmosphereColor * atmosphereMask * (1. - moonMask * isMoonInFront);
 }
