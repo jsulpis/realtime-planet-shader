@@ -1,0 +1,60 @@
+diff --git a/package.json b/package.json
+index 4afc4d8c859021f5bf8a3fa7c2fb77ab3a480ad1..1eff2e34706a533005cd829c631690ce63d3388f 100644
+--- a/package.json
++++ b/package.json
+@@ -22,7 +22,7 @@
+     "src/*"
+   ],
+   "type": "module",
+-  "exports": "./dist/index.js",
++  "exports": "./src/index.ts",
+   "sideEffects": false,
+   "devDependencies": {
+     "@types/node": "^20.4.2",
+diff --git a/src/Sampler.ts b/src/Sampler.ts
+index c0fdef75bcddb0c704b19dd1066712a5cc3c2e51..e6dbc0276ccfde53023c1feb6e6423fca6fc43f5 100644
+--- a/src/Sampler.ts
++++ b/src/Sampler.ts
+@@ -1,7 +1,7 @@
+ /**
+  * Represents a texel filter.
+  */
+-export type Filter = 'nearest' | 'linear'
++export type Filter = 'nearest' | 'linear' | 'nearestMipmapNearest' | 'nearestMipmapLinear' | 'linearMipmapNearest' | 'linearMipmapLinear'
+ 
+ /**
+  * Represents a wrapping mode.
+diff --git a/src/WebGLRenderer.ts b/src/WebGLRenderer.ts
+index 28c182b54334be0b8bfb07b32e94aabaef879fac..8d545aec1a63b93fe525da70ebffd6eedbd74c8c 100644
+--- a/src/WebGLRenderer.ts
++++ b/src/WebGLRenderer.ts
+@@ -42,10 +42,18 @@ const GL_RASTERIZER_DISCARD = 0x8c89
+ 
+ const GL_NEAREST = 0x2600
+ const GL_LINEAR = 0x2601
++const GL_NEAREST_MIPMAP_NEAREST = 0x2700
++const GL_NEAREST_MIPMAP_LINEAR = 0x2702
++const GL_LINEAR_MIPMAP_NEAREST = 0x2701
++const GL_LINEAR_MIPMAP_LINEAR = 0x2703
+ 
+ const GL_FILTERS: Record<Filter, number> = {
+   nearest: GL_NEAREST,
+   linear: GL_LINEAR,
++  nearestMipmapNearest: GL_NEAREST_MIPMAP_NEAREST,
++  nearestMipmapLinear: GL_NEAREST_MIPMAP_LINEAR,
++  linearMipmapNearest: GL_LINEAR_MIPMAP_NEAREST,
++  linearMipmapLinear: GL_LINEAR_MIPMAP_LINEAR,
+ } as const
+ 
+ const GL_REPEAT = 0x2901
+@@ -266,6 +274,10 @@ export class WebGLRenderer {
+           this.gl.samplerParameteri(target, anisotropyExt.TEXTURE_MAX_ANISOTROPY_EXT, sampler.anisotropy)
+       }
+ 
++      if (sampler.magFilter.includes('Mipmap') || sampler.minFilter.includes('Mipmap')) {
++        this.gl.generateMipmap(GL_TEXTURE_2D)
++      }
++
+       this.gl.samplerParameteri(target, GL_TEXTURE_MAG_FILTER, GL_FILTERS[sampler.magFilter])
+       this.gl.samplerParameteri(target, GL_TEXTURE_MIN_FILTER, GL_FILTERS[sampler.minFilter])
+ 

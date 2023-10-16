@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  fourwastaken@0.2.0:
+    hash: pd7lz3ieuww3rnathdxy6alyfa
+    path: patches/fourwastaken@0.2.0.patch
+
 devDependencies:
   '@tweakpane/core':
     specifier: 2.0.0
@@ -13,7 +18,7 @@ devDependencies:
     version: 20.8.3
   four:
     specifier: npm:fourwastaken@0.2.0
-    version: /fourwastaken@0.2.0
+    version: /fourwastaken@0.2.0(patch_hash=pd7lz3ieuww3rnathdxy6alyfa)
   sass:
     specifier: 1.66.1
     version: 1.66.1
@@ -381,8 +386,8 @@ packages:
     resolution: {integrity: sha512-jxiZQFpb+NlH5kjW49vXxvxTjeeqlbsnTAdBTKpzEdPs9itay7MscYXz3Fo9VYFEsfQ6LJFitHad3faerLAjCw==}
     dev: true
 
-  /@webgpu/types@0.1.34:
-    resolution: {integrity: sha512-9mXtH+CC8q+Ku7Z+1XazNIte81FvfdXwR2lLRO7Ykzjd/hh1J1krJa0gtnkF1kvP11psUmKEPKo7iMTeEcUpNA==}
+  /@webgpu/types@0.1.38:
+    resolution: {integrity: sha512-7LrhVKz2PRh+DD7+S+PVaFd5HxaWQvoMqBbsV9fNJO1pjUs1P8bM2vQVNfk+3URTqbuTI7gkXi0rfsN0IadoBA==}
     dev: true
 
   /anymatch@3.1.3:
@@ -461,11 +466,12 @@ packages:
       to-regex-range: 5.0.1
     dev: true
 
-  /fourwastaken@0.2.0:
+  /fourwastaken@0.2.0(patch_hash=pd7lz3ieuww3rnathdxy6alyfa):
     resolution: {integrity: sha512-N/MZMtqtBdDUuWplSC/NKvCsop0olGHZEjcBUPy3waLXskADouI/59rM+eJTI/9a8vYyspHXD/Hgs5ZsZ9FeAA==}
     dependencies:
-      '@webgpu/types': 0.1.34
+      '@webgpu/types': 0.1.38
     dev: true
+    patched: true
 
   /fsevents@2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}

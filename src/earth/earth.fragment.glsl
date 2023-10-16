@@ -221,7 +221,7 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
   float specular = texture(uEarthSpecular, textureCoord).r;
 
   float nightLightIntensity = clamp(dot(-normal, uSunDirection) + .1, smoothstep(1., 0., pow((uSunIntensity + uAmbientLight), .3)), 1.);
-  vec3 nightColor = pow(texture(uEarthNight, textureCoord).r, 5.) * vec3(1., .8, .6);
+  vec3 nightColor = pow(texture(uEarthNight, textureCoord).r, 3.) * vec3(1., .8, .6);
   nightColor *= nightLightIntensity;
 
   float cloudsDensity = texture(uEarthClouds, textureCoord).r;

@@ -7,14 +7,30 @@ import { addMonitor } from "../shared/controls/monitor.controls";
 import { addPointerControls } from "../shared/controls/pointer.controls";
 import { loadTexture } from "./texture.loader";
 import { defaultUniforms } from "../shared/settings/uniforms";
+import { SamplerOptions } from "four";
 
-const textures = [
+type TextureData = {
+   path: string;
+   width?: number;
+   height?: number;
+   options?: Partial<SamplerOptions>;
+};
+
+const textures: TextureData[] = [
    { path: "2k_earth_color.jpeg" },
-   { path: "2k_earth_night.jpeg" },
+   {
+      path: "2k_earth_night.jpeg",
+      options: { minFilter: "nearestMipmapLinear" },
+   },
    { path: "2k_earth_clouds.jpeg" },
    { path: "2k_earth_specular.jpeg" },
    { path: "2k_earth_bump.jpg" },
-   { path: "4k_stars.jpg", width: 4096, height: 2048 },
+   {
+      path: "4k_stars.jpg",
+      width: 4096,
+      height: 2048,
+      options: { minFilter: "linearMipmapLinear" },
+   },
 ];
 
 const [
@@ -25,8 +41,8 @@ const [
    uEarthBump,
    uStars,
 ] = await Promise.all(
-   textures.map(({ path, width = 2048, height = 1024 }) =>
-      loadTexture(`/realtime-planet-shader/${path}`, width, height)
+   textures.map(({ path, width = 2048, height = 1024, options }) =>
+      loadTexture(`/realtime-planet-shader/${path}`, width, height, options)
    )
 );
 
