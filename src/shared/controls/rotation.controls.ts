@@ -1,10 +1,12 @@
+import { Pane } from "tweakpane";
 import { CustomUniforms } from "../settings/uniforms";
 
-export function addPointerControls(
-   canvas: HTMLCanvasElement,
-   uniforms: CustomUniforms
+export function addRotationControls(
+   pane: Pane,
+   uniforms: CustomUniforms,
+   canvas: HTMLCanvasElement
 ) {
-   const decay = 0.95;
+   const damping = { value: 0.95 };
    const speedMultiplier = 4 / Math.max(window.innerWidth, window.innerHeight); // don't really know why this works, but it does
 
    let lastPointerPos = 0;
@@ -34,7 +36,7 @@ export function addPointerControls(
          return;
       }
 
-      velocity *= decay;
+      velocity *= damping.value;
       const deltaPos = velocity * deltaTime;
 
       uniforms.uRotationOffset += deltaPos * speedMultiplier;
@@ -57,6 +59,21 @@ export function addPointerControls(
          },
          { once: true }
       );
+   });
+
+   const rotationFolder = pane.addFolder({
+      title: "Rotation",
+      expanded: window.innerHeight > 800,
+   });
+   rotationFolder.addBinding(uniforms, "uRotationSpeed", {
+      label: "Speed",
+      min: 0,
+      max: 5,
+   });
+   rotationFolder.addBinding(damping, "value", {
+      label: "Damping",
+      min: 0.8,
+      max: 1,
    });
 }
 

@@ -4,7 +4,7 @@ import fragmentShader from "./earth.fragment.glsl";
 import { addPlanetControls } from "../shared/controls/planet.controls";
 import { addLightControls } from "../shared/controls/light.controls";
 import { addMonitor } from "../shared/controls/monitor.controls";
-import { addPointerControls } from "../shared/controls/pointer.controls";
+import { addRotationControls } from "../shared/controls/rotation.controls";
 import { loadTexture } from "./texture.loader";
 import { defaultUniforms } from "../shared/settings/uniforms";
 import { SamplerOptions } from "four";
@@ -66,12 +66,12 @@ const { uniforms } = useGlslCanvas(canvas, {
 });
 
 canvas.classList.add("loaded");
-addPointerControls(canvas, uniforms);
 
 const { Pane } = await import("tweakpane");
 
 const pane = new Pane({ title: "Controls", expanded: false });
 
+addRotationControls(pane, uniforms, canvas);
 addPlanetControls(pane, uniforms, { geometry: false, terrain: false });
 addLightControls(pane, uniforms);
 addMonitor(pane);

@@ -72,7 +72,7 @@ in vec3 uSunDirection;
 
 // Lighting
 #define SUN_COLOR vec3(1.0, 1.0, 0.9)
-#define DEEP_SPACE vec3(0., 0., 0.002)
+#define DEEP_SPACE vec3(0., 0., 0.001)
 
 // Ray tracing
 #define EPSILON 1e-3
@@ -287,7 +287,7 @@ vec3 spaceColor(vec3 direction) {
   vec3 backgroundCoord = direction * backgroundRotation;
   float spaceNoise = fbm(backgroundCoord * 3., 4, .5, 2., 6.);
 
-  return stars(backgroundCoord) + mix(DEEP_SPACE, uAtmosphereColor / 4., spaceNoise);
+  return stars(backgroundCoord) + mix(DEEP_SPACE, uAtmosphereColor / 8., spaceNoise);
 }
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask, Hit firstHit) {

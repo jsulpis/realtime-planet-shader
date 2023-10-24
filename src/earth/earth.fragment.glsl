@@ -177,7 +177,7 @@ vec3 spaceColor(vec3 direction) {
   vec2 textureCoord = sphereProjection(backgroundCoord, vec3(0.), radius);
   vec3 stars = texture(uStars, textureCoord).rgb;
 
-  return DEEP_SPACE + stars * stars * stars * .6;
+  return DEEP_SPACE + stars * stars * stars * stars * .6;
 }
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {

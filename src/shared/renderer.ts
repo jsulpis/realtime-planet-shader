@@ -58,12 +58,14 @@ export function useGlslCanvas(
       rafCallbacks.push(callback);
    }
 
+   const uniforms = mesh.material.uniforms;
+
    requestAnimationFrame(function animate() {
       requestAnimationFrame(animate);
 
       rafCallbacks.forEach((callback) => callback());
 
-      mesh.material.uniforms.uTime = performance.now() / 1000;
+      (uniforms.uTime as number) += (uniforms.uRotationSpeed as number) * 0.01;
 
       renderer.render(mesh, camera);
    });
