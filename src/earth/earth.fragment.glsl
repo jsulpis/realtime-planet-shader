@@ -194,7 +194,7 @@ vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
 
   vec3 atmosphere = vec3(pow(planetEdge, 120.)) * .5;
   atmosphere += pow(planetEdge, 50.) * .3 * (1.5 - planetMask);
-  atmosphere += pow(planetEdge, 15.) * .03;
+  atmosphere += pow(planetEdge, 15.) * .015;
   atmosphere += pow(planetEdge, 5.) * .04 * planetMask;
   
   return atmosphere * uAtmosphereColor * atmosphereMask;

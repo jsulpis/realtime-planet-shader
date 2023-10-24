@@ -29,8 +29,13 @@ canvas {
    height: 100%;
 }
 
-body {
+* {
+   padding: 0;
    margin: 0;
+   box-sizing: border-box;
+}
+
+body {
    background: rgb(0, 0, 0.002);
    font-family: sans-serif;
    overflow: hidden;
@@ -55,9 +60,6 @@ canvas {
 }
 
 .meta {
-   position: absolute;
-   bottom: 0.5em;
-   right: 1em;
    font-style: italic;
    display: flex;
    align-items: center;
@@ -65,7 +67,6 @@ canvas {
    color: hsla(0, 0%, 100%, 0.5);
 
    a {
-      color: hsla(0, 0%, 100%, 0.7);
       font-weight: bold;
    }
 
@@ -93,9 +94,51 @@ canvas {
    }
 }
 
-@media screen and (max-width: 600px) {
+a {
+   color: hsla(0, 0%, 100%, 0.7);
+}
+
+footer {
+   position: absolute;
+   width: 100%;
+   bottom: 0;
+   padding: 1em;
+   display: grid;
+   grid-template: auto auto / 1fr;
+   gap: 1.5em;
+   place-items: center;
+   font-size: clamp(1rem, 1.333vh + 0.25rem, 1.25rem);
+}
+
+nav {
+   ul {
+      display: flex;
+      gap: 1em;
+   }
+
+   a {
+      text-decoration: none;
+      opacity: 0.8;
+   }
+
+   a:is(:hover, [aria-current="page"]) {
+      opacity: 1;
+   }
+
+   a[aria-current="page"] {
+      font-weight: bold;
+      text-decoration: underline;
+   }
+}
+
+@media (min-width: 600px) {
+   footer {
+      grid-template: auto / 1fr 1fr 1fr;
+   }
+   nav {
+      grid-column-start: 2;
+   }
    .meta {
-      bottom: 0.5em;
-      left: 3em;
+      justify-self: end;
    }
 }
