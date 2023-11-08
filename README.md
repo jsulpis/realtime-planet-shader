@@ -1,16 +1,15 @@
-# Realtime procedural planet shader in WebGL
+# Realtime planet shader in WebGL
 
-<img src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/033dbfc3-aafa-4448-af63-c79b427659a8" alt="screenshot of the shader" />
+## Procedural
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/jsulpis/realtime-planet-shader/main/screenshots/procedural-ui.jpg" alt="screenshot of the procedural shader" />
+
+  <br/>
+  <a href="https://jsulpis.github.io/realtime-planet-shader/procedural">live demo</a>
+</div>
 
 <br/>
-<br/>
-
-<span align="center">
-  
-  [live demo](https://jsulpis.github.io/realtime-planet-shader/)
-
-</span>
-
 <br/>
 
 This is a GLSL fragment shader I originally made on [Shadertoy](https://www.shadertoy.com/view/Ds3XRl) when learning raymarching. Later I switched to analytic raycasting for better performance. It's made by raycasting simple spheres with a bunch of fbm noises used for the normals and colors, and a complete hack for the atmosphere.
@@ -21,13 +20,29 @@ It runs at 60fps on my old low-end phone, so it should also be quite smooth on w
 
 <br/>
 
-> [!NOTE]
-> If you want some guidance to render GLSL shaders on a canvas like this one, you can check out the [little study](https://github.com/jsulpis/webgl-libs-comparison) I made before this project.
+## Textures
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/jsulpis/realtime-planet-shader/main/screenshots/earth-ui.jpg" alt="screenshot of the earth shader" />
+
+  <br/>
+  <a href="https://jsulpis.github.io/realtime-planet-shader/earth">live demo</a>
+</div>
+
+<br/>
+<br/>
+
+This one uses textures (colors, specular, bump) borrowed and adapted from NASA [Visible Earth](https://visibleearth.nasa.gov/collection/1484/blue-marble) collection in order to render a realistic view of our home planet. Still with a few controls, and no quality setting because it should already run at full fps on most devices.
+
+## Note
+
+If you want a minimalist setup to render GLSL shaders on a canvas like this one, you can check out the [little study](https://github.com/jsulpis/webgl-libs-comparison) I made before this project.
 
 <br/>
 
-More samples:
+## More samples
 
-<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/1b0343c1-727e-47e3-aa03-81fe84d6a6bc">
-<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/31b4d3f9-30b4-458d-90bf-ea63c2d052b0">
-<img width="250" alt="screenshot with different settings" src="https://github.com/jsulpis/realtime-planet-shader/assets/22420399/4a9aef98-61cf-4bd2-bdb4-fc9deea144a2">
+<img height="250" alt="screenshot with different settings" src="https://raw.githubusercontent.com/jsulpis/realtime-planet-shader/main/screenshots/earth-1.jpg">
+<img height="250" alt="screenshot with different settings" src="https://raw.githubusercontent.com/jsulpis/realtime-planet-shader/main/screenshots/procedural-1.jpg">
+<img height="250" alt="screenshot with different settings" src="https://raw.githubusercontent.com/jsulpis/realtime-planet-shader/main/screenshots/procedural-2.jpg">
+<img height="250" alt="screenshot with different settings" src="https://raw.githubusercontent.com/jsulpis/realtime-planet-shader/main/screenshots/procedural-3.jpg">
