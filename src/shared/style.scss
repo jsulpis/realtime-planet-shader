@@ -60,22 +60,33 @@ canvas {
 }
 
 .meta {
-   font-style: italic;
-   display: flex;
-   align-items: center;
-   justify-content: center;
    color: hsla(0, 0%, 100%, 0.5);
+
+   &:not(.with-textures) {
+      margin-top: calc(1em + 0.8em);
+   }
+
+   .author {
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      justify-content: end;
+   }
+
+   .textures {
+      font-size: 0.875em;
+      margin-top: 0.8em;
+   }
 
    a {
       font-weight: bold;
    }
 
    a.icon {
-      display: inline-flex;
-      height: 2.5em;
-      width: 2.5em;
-      justify-content: center;
-      align-items: center;
+      display: inline-grid;
+      margin: -0.65em;
+      padding: 0.65em;
+      place-items: center;
       border-radius: 50%;
       margin-left: 0.5em;
 
@@ -87,7 +98,6 @@ canvas {
 
    svg {
       fill: currentColor;
-      vertical-align: middle;
       flex-shrink: 0;
       height: 1.2em;
       width: auto;
@@ -102,11 +112,12 @@ footer {
    position: absolute;
    width: 100%;
    bottom: 0;
-   padding: 1em;
+   padding: 1.5em;
    display: grid;
    grid-template: auto auto / 1fr;
-   gap: 1.5em;
-   place-items: center;
+   row-gap: 1.5em;
+   justify-items: center;
+   align-items: end;
    font-size: clamp(1rem, 1.333vh + 0.25rem, 1.25rem);
 }
 
