@@ -4,14 +4,16 @@
    "private": true,
    "type": "module",
    "scripts": {
-      "build": "tsc && vite build",
-      "dev": "vite",
-      "preview": "vite preview",
+      "build": "astro check && astro build",
+      "dev": "astro dev",
+      "preview": "astro preview",
       "serve": "pnpm build && pnpm preview"
    },
    "devDependencies": {
+      "@astrojs/check": "0.3.1",
       "@tweakpane/core": "2.0.0",
       "@types/node": "20.8.3",
+      "astro": "^3.4.4",
       "four": "npm:fourwastaken@0.2.0",
       "sass": "1.66.1",
       "tweakpane": "4.0.0",

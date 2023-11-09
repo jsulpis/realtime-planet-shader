@@ -1,5 +1,5 @@
 import { Pane } from "tweakpane";
-import { CustomUniforms } from "../settings/uniforms";
+import type { CustomUniforms } from "../webgl/settings/uniforms";
 
 export function addRotationControls(
    pane: Pane,

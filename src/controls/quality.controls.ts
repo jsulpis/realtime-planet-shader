@@ -1,7 +1,7 @@
 import { WebGLRenderer } from "four";
 import { ListBladeApi, Pane } from "tweakpane";
-import { Quality, defaultQuality } from "../settings/quality";
-import { CustomUniforms } from "../settings/uniforms";
+import { Quality, defaultQuality } from "../webgl/settings/quality";
+import type { CustomUniforms } from "../webgl/settings/uniforms";
 
 export function addQualityControl(
    pane: Pane,
@@ -25,4 +25,3 @@ export function addQualityControl(
    });
 }
 export { Quality };
-

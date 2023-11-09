@@ -1,10 +1,7 @@
 import { Pane } from "tweakpane";
-import { CustomUniforms } from "../settings/uniforms";
+import type { CustomUniforms } from "../webgl/settings/uniforms";
 
-export function addLightControls(
-   pane: Pane,
-   uniforms: CustomUniforms
-) {
+export function addLightControls(pane: Pane, uniforms: CustomUniforms) {
    const light = pane.addFolder({
       title: "Light",
       expanded: window.innerHeight > 800,

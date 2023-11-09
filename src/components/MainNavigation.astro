@@ -1,0 +1,54 @@
+---
+const routes = [
+   { slug: "procedural", title: "Procedural" },
+   { slug: "earth", title: "Earth" },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav>
+   <ul>
+      {
+         routes.map(({ slug, title }) => (
+            <li>
+               <a
+                  aria-current={currentPath.includes(slug) ? "page" : null}
+                  href={`./${slug}`}
+               >
+                  {title}
+               </a>
+            </li>
+         ))
+      }
+   </ul>
+</nav>
+
+<style lang="scss">
+   nav {
+      ul {
+         display: flex;
+         gap: 1em;
+      }
+
+      a {
+         text-decoration: none;
+         opacity: 0.8;
+      }
+
+      a:is(:hover, [aria-current="page"]) {
+         opacity: 1;
+      }
+
+      a[aria-current="page"] {
+         font-weight: bold;
+         text-decoration: underline;
+      }
+   }
+
+   @media (min-width: 600px) {
+      nav {
+         grid-column-start: 2;
+      }
+   }
+</style>

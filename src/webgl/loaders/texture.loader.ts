@@ -1,4 +1,4 @@
-import { SamplerOptions, Texture, Sampler } from "four";
+import { type SamplerOptions, Texture, Sampler } from "four";
 
 export async function loadTexture(
    url: string,

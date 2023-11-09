@@ -1,0 +1,115 @@
+---
+import Author from "../components/Author.astro";
+import Canvas from "../components/Canvas.astro";
+import Footer from "../components/Footer.astro";
+import MainNavigation from "../components/MainNavigation.astro";
+import Meta from "../components/Meta.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<script>
+   import { useGlslCanvas } from "../webgl/renderer";
+   import vertexShader from "../webgl/shaders/vertex.glsl";
+   import fragmentShader from "../webgl/shaders/earth.fragment.glsl";
+   import { addPlanetControls } from "../controls/planet.controls";
+   import { addLightControls } from "../controls/light.controls";
+   import { addMonitor } from "../controls/monitor.controls";
+   import { addRotationControls } from "../controls/rotation.controls";
+   import { loadTexture } from "../webgl/loaders/texture.loader";
+   import { defaultUniforms } from "../webgl/settings/uniforms";
+   import type { SamplerOptions } from "four";
+
+   type TextureData = {
+      path: string;
+      width?: number;
+      height?: number;
+      options?: Partial<SamplerOptions>;
+   };
+
+   const textures: TextureData[] = [
+      { path: "2k_earth_color.jpeg" },
+      {
+         path: "2k_earth_night.jpeg",
+         options: { minFilter: "nearestMipmapLinear" },
+      },
+      { path: "2k_earth_clouds.jpeg" },
+      { path: "2k_earth_specular.jpeg" },
+      { path: "2k_earth_bump.jpg" },
+      {
+         path: "4k_stars.jpg",
+         width: 4096,
+         height: 2048,
+         options: { minFilter: "linearMipmapLinear" },
+      },
+   ];
+
+   const [
+      uEarthColor,
+      uEarthNight,
+      uEarthClouds,
+      uEarthSpecular,
+      uEarthBump,
+      uStars,
+   ] = await Promise.all(
+      textures.map(({ path, width = 2048, height = 1024, options }) =>
+         loadTexture(`/realtime-planet-shader/${path}`, width, height, options)
+      )
+   );
+
+   const canvas = document.querySelector("canvas")!;
+
+   const { uniforms } = useGlslCanvas(canvas, {
+      vertex: vertexShader,
+      fragment: fragmentShader,
+      uniforms: {
+         ...defaultUniforms,
+         uCloudsScale: -1,
+         uCloudsSpeed: -1,
+         uQuality: Math.min(window.devicePixelRatio, 2),
+         uEarthColor,
+         uEarthNight,
+         uEarthClouds,
+         uEarthSpecular,
+         uEarthBump,
+         uStars,
+      },
+   });
+
+   canvas.classList.add("loaded");
+
+   const { Pane } = await import("tweakpane");
+
+   const pane = new Pane({ title: "Controls", expanded: false });
+
+   addRotationControls(pane, uniforms, canvas);
+   addPlanetControls(pane, uniforms, { geometry: false, terrain: false });
+   addLightControls(pane, uniforms);
+   addMonitor(pane);
+</script>
+
+<Layout
+   title="Realtime Planet Shader | Earth"
+   description="Realtime earth shader in WebGL"
+>
+   <Canvas />
+   <Footer>
+      <MainNavigation />
+      <Meta>
+         <Author />
+         <div class="textures">
+            Textures from NASA <a
+               href="https://visibleearth.nasa.gov/collection/1484/blue-marble"
+            >
+               Visible Earth
+            </a>
+         </div>
+      </Meta>
+   </Footer>
+</Layout>
+
+<style>
+   .textures {
+      font-size: 0.875em;
+      margin-top: 0.8em;
+   }
+</style>

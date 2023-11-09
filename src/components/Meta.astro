@@ -1,0 +1,19 @@
+---
+const { class: className, ...rest } = Astro.props; // https://docs.astro.build/en/guides/styling/#passing-a-class-to-a-child-component
+---
+
+<div class={className} {...rest}>
+   <slot />
+</div>
+
+<style lang="scss">
+   div {
+      color: hsla(0, 0%, 100%, 0.5);
+   }
+
+   @media (min-width: 600px) {
+      div {
+         justify-self: end;
+      }
+   }
+</style>

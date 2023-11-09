@@ -1,0 +1,88 @@
+---
+const { title, description } = Astro.props;
+
+const slug = Astro.url.pathname.replace("/", "");
+---
+
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <link
+         rel="icon"
+         type="image/png"
+         href="/realtime-planet-shader/favicon.png"
+      />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>{title}</title>
+      <meta property="og:title" content={title} />
+      <meta name="description" content={description} />
+      <meta property="og:description" content={description} />
+      <meta
+         property="og:image"
+         content={`https://jsulpis.github.io/realtime-planet-shader/${slug}.jpg`}
+      />
+      <meta
+         property="og:url"
+         content={`https://jsulpis.github.io/realtime-planet-shader/${slug}`}
+      />
+      <meta property="og:image:width" content="1440" />
+      <meta property="og:image:height" content="900" />
+
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:creator" content="@jsulpis" />
+      <meta name="twitter:site" content="@jsulpis" />
+   </head>
+   <body>
+      <slot />
+   </body>
+</html>
+
+<style lang="scss" is:global>
+   // https://tweakpane.github.io/docs/theming/#builder
+   :root {
+      --tp-base-background-color: hsla(230, 20%, 8%, 0.8);
+      --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+      --tp-button-background-color: hsla(230, 10%, 80%, 1);
+      --tp-button-background-color-active: hsla(230, 10%, 95%, 1);
+      --tp-button-background-color-focus: hsla(230, 10%, 90%, 1);
+      --tp-button-background-color-hover: hsla(230, 10%, 85%, 1);
+      --tp-button-foreground-color: hsla(230, 20%, 11%, 1);
+      --tp-container-background-color: hsla(230, 25%, 14%, 0.8);
+      --tp-container-background-color-active: hsla(230, 25%, 31%, 0.8);
+      --tp-container-background-color-focus: hsla(230, 25%, 26%, 0.5);
+      --tp-container-background-color-hover: hsla(230, 25%, 21%, 0.4);
+      --tp-container-foreground-color: hsla(230, 10%, 90%, 1);
+      --tp-groove-foreground-color: hsla(230, 20%, 8%, 1);
+      --tp-input-background-color: hsla(230, 20%, 8%, 0.3);
+      --tp-input-background-color-active: hsla(230, 28%, 23%, 0.6);
+      --tp-input-background-color-focus: hsla(230, 28%, 18%, 0.5);
+      --tp-input-background-color-hover: hsla(230, 20%, 13%, 0.4);
+      --tp-input-foreground-color: hsla(230, 10%, 80%, 0.7);
+      --tp-label-foreground-color: hsla(230, 12%, 68%, 1);
+      --tp-monitor-background-color: hsla(230, 20%, 8%, 0.3);
+      --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1);
+   }
+
+   html,
+   body,
+   canvas {
+      height: 100%;
+   }
+
+   * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+   }
+
+   body {
+      background: rgb(0, 0, 0.002);
+      font-family: sans-serif;
+      overflow: hidden;
+   }
+
+   a {
+      color: hsla(0, 0%, 100%, 0.7);
+   }
+</style>

@@ -5,7 +5,7 @@ import {
    Geometry,
    Mesh,
 } from "four";
-import { CustomUniforms } from "./settings/uniforms";
+import type { CustomUniforms } from "./settings/uniforms";
 
 function flatten<T>(array: T[][]): T[] {
    return array.reduce((acc, val) => acc.concat(val), []);
@@ -17,8 +17,8 @@ export function useGlslCanvas(
 ) {
    const renderer = new WebGLRenderer({ canvas });
    renderer.setSize(
-      window.innerWidth * (materialOptions[0].uniforms.uQuality as number),
-      window.innerHeight * (materialOptions[0].uniforms.uQuality as number)
+      window.innerWidth * (materialOptions[0]?.uniforms?.uQuality as number),
+      window.innerHeight * (materialOptions[0]?.uniforms?.uQuality as number)
    );
 
    const camera = new PerspectiveCamera();

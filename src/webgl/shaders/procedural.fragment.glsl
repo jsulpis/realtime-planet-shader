@@ -1,9 +1,11 @@
-// Procedural Blue Planet by Julien Sulpis (https://twitter.com/jsulpis)
+//=======================================================================================//
 //
+// Procedural Blue Planet
+// by Julien Sulpis (https://twitter.com/jsulpis)      
 // https://www.shadertoy.com/view/Ds3XRl
 //
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
-//
+//=======================================================================================//
+
 
 #version 300 es
 

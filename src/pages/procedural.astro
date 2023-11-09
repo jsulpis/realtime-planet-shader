@@ -1,0 +1,64 @@
+---
+import Author from "../components/Author.astro";
+import Canvas from "../components/Canvas.astro";
+import Footer from "../components/Footer.astro";
+import MainNavigation from "../components/MainNavigation.astro";
+import Meta from "../components/Meta.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<script>
+   import { useGlslCanvas } from "../webgl/renderer";
+   import vertexShader from "../webgl/shaders/vertex.glsl";
+   import fragmentShader from "../webgl/shaders/procedural.fragment.glsl";
+   import { addPlanetControls } from "../controls/planet.controls";
+   import { addLightControls } from "../controls/light.controls";
+   import { addMonitor } from "../controls/monitor.controls";
+   import { load3DNoiseTexture } from "../webgl/loaders/noise.loader";
+   import { addQualityControl } from "../controls/quality.controls";
+   import { addRotationControls } from "../controls/rotation.controls";
+   import { defaultUniforms } from "../webgl/settings/uniforms";
+
+   const canvas = document.querySelector("canvas")!;
+
+   await load3DNoiseTexture(canvas.getContext("webgl2")!);
+
+   const { uniforms, renderer } = useGlslCanvas(canvas, {
+      vertex: vertexShader,
+      fragment: fragmentShader,
+      uniforms: defaultUniforms,
+   });
+
+   canvas.classList.add("loaded");
+
+   const { Pane } = await import("tweakpane");
+
+   const pane = new Pane({ title: "Controls" });
+
+   addQualityControl(pane, uniforms, renderer);
+   addRotationControls(pane, uniforms, canvas);
+   addPlanetControls(pane, uniforms);
+   addLightControls(pane, uniforms);
+   addMonitor(pane);
+</script>
+
+<Layout
+   title="Realtime Planet Shader | Procedural"
+   description="Realtime procedural planet shader in WebGL"
+>
+   <Canvas />
+   <Footer>
+      <MainNavigation />
+      <Meta class="meta">
+         <Author />
+      </Meta>
+   </Footer>
+</Layout>
+
+<style>
+   @media (max-width: 599px) {
+      .meta {
+         margin-top: calc(1em + 0.8em);
+      }
+   }
+</style>

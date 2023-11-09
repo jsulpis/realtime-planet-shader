@@ -1,0 +1,21 @@
+<canvas></canvas>
+
+<style lang="scss">
+   canvas {
+      display: block;
+      width: 100%;
+      cursor: grab;
+      user-select: none; /* avoid selecting things with long press on touch screens */
+      touch-action: none; /* prevent mobile browsers from conflicting with the pointermove event */
+      opacity: 0;
+
+      &.loaded {
+         opacity: 1;
+         transition: opacity 0.5s ease-out;
+      }
+
+      &.grabbing {
+         cursor: grabbing;
+      }
+   }
+</style>

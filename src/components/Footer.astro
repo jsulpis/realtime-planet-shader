@@ -1,0 +1,24 @@
+<footer>
+   <slot />
+</footer>
+
+<style>
+   footer {
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+      padding: 1.5em;
+      display: grid;
+      grid-template: auto auto / 1fr;
+      row-gap: 1.5em;
+      justify-items: center;
+      align-items: end;
+      font-size: clamp(1rem, 1.333vh + 0.25rem, 1.25rem);
+   }
+
+   @media (min-width: 600px) {
+      footer {
+         grid-template: auto / 1fr 1fr 1fr;
+      }
+   }
+</style>
