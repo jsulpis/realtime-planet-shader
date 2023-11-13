@@ -20,7 +20,7 @@ devDependencies:
     specifier: 20.8.3
     version: 20.8.3
   astro:
-    specifier: ^3.4.4
+    specifier: 3.4.4
     version: 3.4.4(@types/node@20.8.3)(sass@1.66.1)(typescript@5.1.6)
   four:
     specifier: npm:fourwastaken@0.2.0

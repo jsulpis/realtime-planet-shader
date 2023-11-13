@@ -5,7 +5,7 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
    base: "/realtime-planet-shader",
    redirects: {
-      "/": "/earth",
+      "/": "/realtime-planet-shader/earth",
    },
    vite: {
       plugins: [glsl(), topLevelAwait()], // top-level await present in the "four" library

@@ -1,7 +1,7 @@
 ---
 const { title, description } = Astro.props;
 
-const slug = Astro.url.pathname.replace("/", "");
+const slug = Astro.url.pathname.split("/").at(-2);
 ---
 
 <!doctype html>

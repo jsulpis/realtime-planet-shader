@@ -13,7 +13,7 @@
       "@astrojs/check": "0.3.1",
       "@tweakpane/core": "2.0.0",
       "@types/node": "20.8.3",
-      "astro": "^3.4.4",
+      "astro": "3.4.4",
       "four": "npm:fourwastaken@0.2.0",
       "sass": "1.66.1",
       "tweakpane": "4.0.0",
