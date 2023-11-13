@@ -1,4 +1,4 @@
-import { Pane } from "tweakpane";
+import type { Pane } from "tweakpane";
 
 export function addMonitor(pane: Pane) {
    const monitorFolder = pane.addFolder({

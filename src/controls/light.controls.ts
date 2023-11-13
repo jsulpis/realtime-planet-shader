@@ -1,4 +1,4 @@
-import { Pane } from "tweakpane";
+import type { Pane } from "tweakpane";
 import type { CustomUniforms } from "../webgl/settings/uniforms";
 
 export function addLightControls(pane: Pane, uniforms: CustomUniforms) {
