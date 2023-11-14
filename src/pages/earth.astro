@@ -5,6 +5,7 @@ import Footer from "../components/Footer.astro";
 import MainNavigation from "../components/MainNavigation.astro";
 import Meta from "../components/Meta.astro";
 import Layout from "../layouts/Layout.astro";
+import TextureCredits from "../components/TextureCredits.astro";
 ---
 
 <script>
@@ -15,16 +16,9 @@ import Layout from "../layouts/Layout.astro";
    import { addLightControls } from "../controls/light.controls";
    import { addMonitor } from "../controls/monitor.controls";
    import { addRotationControls } from "../controls/rotation.controls";
-   import { loadTexture } from "../webgl/loaders/texture.loader";
+   import { loadTextures } from "../webgl/loaders/texture.loader";
    import { defaultUniforms } from "../webgl/settings/uniforms";
-   import type { SamplerOptions } from "four";
-
-   type TextureData = {
-      path: string;
-      width?: number;
-      height?: number;
-      options?: Partial<SamplerOptions>;
-   };
+   import type { TextureData } from "../webgl/loaders/texture.types";
 
    const textures: TextureData[] = [
       { path: "2k_earth_color.jpeg" },
@@ -50,11 +44,7 @@ import Layout from "../layouts/Layout.astro";
       uEarthSpecular,
       uEarthBump,
       uStars,
-   ] = await Promise.all(
-      textures.map(({ path, width = 2048, height = 1024, options }) =>
-         loadTexture(`/realtime-planet-shader/${path}`, width, height, options)
-      )
-   );
+   ] = await loadTextures(textures);
 
    const canvas = document.querySelector("canvas")!;
 
@@ -65,7 +55,6 @@ import Layout from "../layouts/Layout.astro";
          ...defaultUniforms,
          uCloudsScale: -1,
          uCloudsSpeed: -1,
-         uQuality: Math.min(window.devicePixelRatio, 2),
          uEarthColor,
          uEarthNight,
          uEarthClouds,
@@ -87,29 +76,19 @@ import Layout from "../layouts/Layout.astro";
    addMonitor(pane);
 </script>
 
-<Layout
-   title="Realtime Planet Shader | Earth"
-   description="Realtime earth shader in WebGL"
->
+<Layout title="Earth" description="Realtime earth shader in WebGL">
    <Canvas />
    <Footer>
       <MainNavigation />
       <Meta>
          <Author />
-         <div class="textures">
+         <TextureCredits>
             Textures from NASA <a
                href="https://visibleearth.nasa.gov/collection/1484/blue-marble"
             >
                Visible Earth
             </a>
-         </div>
+         </TextureCredits>
       </Meta>
    </Footer>
 </Layout>
-
-<style>
-   .textures {
-      font-size: 0.875em;
-      margin-top: 0.8em;
-   }
-</style>

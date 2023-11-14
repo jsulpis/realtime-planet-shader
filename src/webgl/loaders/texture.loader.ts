@@ -1,4 +1,5 @@
 import { type SamplerOptions, Texture, Sampler } from "four";
+import type { TextureData } from "./texture.types";
 
 export async function loadTexture(
    url: string,
@@ -19,5 +20,13 @@ export async function loadTexture(
          wrapT: "repeat",
          ...samplerOptions,
       })
+   );
+}
+
+export async function loadTextures(texturesData: TextureData[]) {
+   return Promise.all(
+      texturesData.map(({ path, width = 2048, height = 1024, options }) =>
+         loadTexture(`/realtime-planet-shader/${path}`, width, height, options)
+      )
    );
 }

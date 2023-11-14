@@ -15,7 +15,7 @@ import Layout from "../layouts/Layout.astro";
    import { addLightControls } from "../controls/light.controls";
    import { addMonitor } from "../controls/monitor.controls";
    import { load3DNoiseTexture } from "../webgl/loaders/noise.loader";
-   import { addQualityControl } from "../controls/quality.controls";
+   import { Quality, addQualityControl } from "../controls/quality.controls";
    import { addRotationControls } from "../controls/rotation.controls";
    import { defaultUniforms } from "../webgl/settings/uniforms";
 
@@ -23,10 +23,16 @@ import Layout from "../layouts/Layout.astro";
 
    await load3DNoiseTexture(canvas.getContext("webgl2")!);
 
+   const defaultQuality =
+      window.innerWidth < 800 ? Quality.MEDIUM : Quality.OPTIMAL;
+
    const { uniforms, renderer } = useGlslCanvas(canvas, {
       vertex: vertexShader,
       fragment: fragmentShader,
-      uniforms: defaultUniforms,
+      uniforms: {
+         ...defaultUniforms,
+         uQuality: defaultQuality,
+      },
    });
 
    canvas.classList.add("loaded");
@@ -35,7 +41,7 @@ import Layout from "../layouts/Layout.astro";
 
    const pane = new Pane({ title: "Controls" });
 
-   addQualityControl(pane, uniforms, renderer);
+   addQualityControl(pane, uniforms, renderer, defaultQuality);
    addRotationControls(pane, uniforms, canvas);
    addPlanetControls(pane, uniforms);
    addLightControls(pane, uniforms);
@@ -43,7 +49,7 @@ import Layout from "../layouts/Layout.astro";
 </script>
 
 <Layout
-   title="Realtime Planet Shader | Procedural"
+   title="Procedural"
    description="Realtime procedural planet shader in WebGL"
 >
    <Canvas />

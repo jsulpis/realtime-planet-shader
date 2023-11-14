@@ -1,7 +1,9 @@
 ---
 const { title, description } = Astro.props;
 
-const slug = Astro.url.pathname.split("/").at(-2);
+const slug = Astro.url.pathname.replace(/\/$/, "").split("/").at(-1);
+const fullTitle = `Realtime Planet Shader | ${title}`;
+const baseUrl = "https://jsulpis.github.io/realtime-planet-shader";
 ---
 
 <!doctype html>
@@ -14,18 +16,12 @@ const slug = Astro.url.pathname.split("/").at(-2);
          href="/realtime-planet-shader/favicon.png"
       />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>{title}</title>
-      <meta property="og:title" content={title} />
+      <title>{fullTitle}</title>
+      <meta property="og:title" content={fullTitle} />
       <meta name="description" content={description} />
       <meta property="og:description" content={description} />
-      <meta
-         property="og:image"
-         content={`https://jsulpis.github.io/realtime-planet-shader/${slug}.jpg`}
-      />
-      <meta
-         property="og:url"
-         content={`https://jsulpis.github.io/realtime-planet-shader/${slug}`}
-      />
+      <meta property="og:image" content={`${baseUrl}/${slug}.jpg`} />
+      <meta property="og:url" content={`${baseUrl}/${slug}`} />
       <meta property="og:image:width" content="1440" />
       <meta property="og:image:height" content="900" />
 

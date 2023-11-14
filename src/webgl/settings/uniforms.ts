@@ -1,8 +1,6 @@
-import { defaultQuality } from "./quality";
-
 export const defaultUniforms = {
    uTime: 0.0,
-   uQuality: defaultQuality,
+   uQuality: Math.min(window.devicePixelRatio, 2),
    uRotationSpeed: 1,
    uResolution: [window.innerWidth, window.innerHeight],
    uPlanetPosition: [0, 0, 0],

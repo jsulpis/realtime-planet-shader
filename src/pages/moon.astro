@@ -4,6 +4,7 @@ import Canvas from "../components/Canvas.astro";
 import Footer from "../components/Footer.astro";
 import MainNavigation from "../components/MainNavigation.astro";
 import Meta from "../components/Meta.astro";
+import TextureCredits from "../components/TextureCredits.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
@@ -15,20 +16,13 @@ import Layout from "../layouts/Layout.astro";
    import { addLightControls } from "../controls/light.controls";
    import { addMonitor } from "../controls/monitor.controls";
    import { addRotationControls } from "../controls/rotation.controls";
-   import { loadTexture } from "../webgl/loaders/texture.loader";
+   import { loadTextures } from "../webgl/loaders/texture.loader";
    import { defaultUniforms } from "../webgl/settings/uniforms";
-   import type { SamplerOptions } from "four";
-
-   type TextureData = {
-      path: string;
-      width?: number;
-      height?: number;
-      options?: Partial<SamplerOptions>;
-   };
+   import type { TextureData } from "../webgl/loaders/texture.types";
 
    const textures: TextureData[] = [
       {
-         path: "2k_moon.jpg",
+         path: "2k_moon.jpeg",
          options: { minFilter: "linearMipmapLinear" },
       },
       {
@@ -39,11 +33,7 @@ import Layout from "../layouts/Layout.astro";
       },
    ];
 
-   const [uPlanetColor, uStars] = await Promise.all(
-      textures.map(({ path, width = 2048, height = 1024, options }) =>
-         loadTexture(`/realtime-planet-shader/${path}`, width, height, options)
-      )
-   );
+   const [uPlanetColor, uStars] = await loadTextures(textures);
 
    const canvas = document.querySelector("canvas")!;
 
@@ -76,28 +66,18 @@ import Layout from "../layouts/Layout.astro";
    addMonitor(pane);
 </script>
 
-<Layout
-   title="Realtime Planet Shader | Moon"
-   description="Realtime moon shader in WebGL"
->
+<Layout title="Moon" description="Realtime moon shader in WebGL">
    <Canvas />
    <Footer>
       <MainNavigation />
       <Meta>
          <Author />
-         <div class="textures">
+         <TextureCredits>
             Textures from
             <a href="https://www.solarsystemscope.com/textures/">
                Solar System Scope
             </a>
-         </div>
+         </TextureCredits>
       </Meta>
    </Footer>
 </Layout>
-
-<style>
-   .textures {
-      font-size: 0.875em;
-      margin-top: 0.8em;
-   }
-</style>

@@ -1,12 +1,13 @@
 import { WebGLRenderer } from "four";
 import { ListBladeApi, Pane } from "tweakpane";
-import { Quality, defaultQuality } from "../webgl/settings/quality";
+import { Quality } from "../webgl/settings/quality";
 import type { CustomUniforms } from "../webgl/settings/uniforms";
 
 export function addQualityControl(
    pane: Pane,
    uniforms: CustomUniforms,
-   renderer: WebGLRenderer
+   renderer: WebGLRenderer,
+   defaultValue: Quality
 ) {
    (
       pane.addBlade({
@@ -17,7 +18,7 @@ export function addQualityControl(
             { text: "medium", value: Quality.MEDIUM },
             { text: "optimal", value: Quality.OPTIMAL },
          ],
-         value: defaultQuality,
+         value: defaultValue,
       }) as ListBladeApi<Quality>
    ).on("change", ({ value }) => {
       uniforms.uQuality = value;
