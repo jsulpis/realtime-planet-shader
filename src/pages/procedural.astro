@@ -23,10 +23,11 @@ import Layout from "../layouts/Layout.astro";
 
    await load3DNoiseTexture(canvas.getContext("webgl2")!);
 
-   const defaultQuality =
-      window.innerWidth < 800 ? Quality.MEDIUM : Quality.OPTIMAL;
+   const isPhone = window.innerWidth < 800;
+   const defaultQuality = isPhone ? Quality.MEDIUM : Quality.OPTIMAL;
 
-   const { uniforms, renderer } = useGlslCanvas(canvas, {
+   const { uniforms, renderer } = useGlslCanvas({
+      canvas,
       vertex: vertexShader,
       fragment: fragmentShader,
       uniforms: {
@@ -34,8 +35,6 @@ import Layout from "../layouts/Layout.astro";
          uQuality: defaultQuality,
       },
    });
-
-   canvas.classList.add("loaded");
 
    const { Pane } = await import("tweakpane");
 

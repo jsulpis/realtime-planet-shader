@@ -35,9 +35,7 @@ import Layout from "../layouts/Layout.astro";
 
    const [uPlanetColor, uStars] = await loadTextures(textures);
 
-   const canvas = document.querySelector("canvas")!;
-
-   const { uniforms } = useGlslCanvas(canvas, {
+   const { uniforms, canvas } = useGlslCanvas({
       vertex: vertexShader,
       fragment: fragmentShader,
       uniforms: {
@@ -49,8 +47,6 @@ import Layout from "../layouts/Layout.astro";
          uStars,
       },
    });
-
-   canvas.classList.add("loaded");
 
    const { Pane } = await import("tweakpane");
 

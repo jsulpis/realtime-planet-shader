@@ -46,9 +46,7 @@ import TextureCredits from "../components/TextureCredits.astro";
       uStars,
    ] = await loadTextures(textures);
 
-   const canvas = document.querySelector("canvas")!;
-
-   const { uniforms } = useGlslCanvas(canvas, {
+   const { uniforms, canvas } = useGlslCanvas({
       vertex: vertexShader,
       fragment: fragmentShader,
       uniforms: {
@@ -63,8 +61,6 @@ import TextureCredits from "../components/TextureCredits.astro";
          uStars,
       },
    });
-
-   canvas.classList.add("loaded");
 
    const { Pane } = await import("tweakpane");
 

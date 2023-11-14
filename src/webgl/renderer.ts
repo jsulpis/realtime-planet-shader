@@ -11,19 +11,21 @@ function flatten<T>(array: T[][]): T[] {
    return array.reduce((acc, val) => acc.concat(val), []);
 }
 
-export function useGlslCanvas(
-   canvas: HTMLCanvasElement,
-   ...materialOptions: ConstructorParameters<typeof Material>
-) {
+type MaterialOptions = ConstructorParameters<typeof Material>[0];
+type Args = MaterialOptions & { canvas?: HTMLCanvasElement };
+
+export function useGlslCanvas({ canvas: canvasArg, ...materialOptions }: Args) {
+   let canvas = canvasArg ?? document.querySelector("canvas")!;
+
    const renderer = new WebGLRenderer({ canvas });
    renderer.setSize(
-      window.innerWidth * (materialOptions[0]?.uniforms?.uQuality as number),
-      window.innerHeight * (materialOptions[0]?.uniforms?.uQuality as number)
+      window.innerWidth * (materialOptions?.uniforms?.uQuality as number),
+      window.innerHeight * (materialOptions?.uniforms?.uQuality as number)
    );
 
    const camera = new PerspectiveCamera();
 
-   const material = new Material(...materialOptions);
+   const material = new Material(materialOptions);
 
    const geometry = new Geometry({
       position: {
@@ -82,10 +84,12 @@ export function useGlslCanvas(
       ];
    });
 
+   canvas.classList.add("loaded");
+
    return {
       renderer,
       raf,
       uniforms: mesh.material.uniforms as CustomUniforms,
-      canvas: renderer.canvas,
+      canvas,
    };
 }
