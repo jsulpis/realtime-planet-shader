@@ -6,6 +6,7 @@ export const defaultUniforms = {
    uPlanetPosition: [0, 0, 0],
    uRotationOffset: 0.8,
    uPlanetRadius: 2,
+   uBumpStrength: 0.01,
    uNoiseStrength: 0.2,
    uTerrainScale: 0.8,
    uCloudsDensity: 0.5,
@@ -13,7 +14,7 @@ export const defaultUniforms = {
    uCloudsSpeed: 1,
    uAtmosphereColor: [0.05, 0.3, 0.9],
    uAtmosphereDensity: 0.3,
-   uAmbientLight: 0.002,
+   uAmbientLight: 0.01,
    uSunIntensity: 3,
    sunDirectionXY: [1, 1],
 };

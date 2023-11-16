@@ -19,10 +19,11 @@ out vec4 fragColor;
 //===================//
 
 uniform float uTime;
+uniform vec2 uResolution;
 uniform vec3 uPlanetPosition;
 uniform float uPlanetRadius;
 uniform float uRotationOffset;
-uniform vec2 uResolution;
+uniform float uBumpStrength;
 uniform sampler2D uPlanetColor;
 uniform sampler2D uStars;
 
@@ -135,6 +136,15 @@ vec3 simpleReinhardToneMapping(vec3 color) {
   return color;
 }
 
+// https://www.shadertoy.com/view/MtX3z2
+float Sigmoid (float x) {
+  return 1.0 / (1.0 + (exp(-(x - 0.7) * 6.5))); 
+}
+
+vec3 Scurve (vec3 color) {
+  return vec3(Sigmoid(color.x), Sigmoid(color.y), Sigmoid(color.z));
+}
+
 //========//
 //  Misc  //
 //========//
@@ -143,7 +153,7 @@ float planetNoise(vec3 p) {
   vec2 textureCoord = sphereProjection(p, uPlanetPosition, uPlanetRadius);
   float bump = length(texture(uPlanetColor, textureCoord));
 
-  return .01 * bump;
+  return uBumpStrength * bump;
 }
 
 float planetDist(in vec3 ro, in vec3 rd) {
@@ -212,11 +222,11 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
 
   vec2 textureCoord = sphereProjection(rotatedPosition, uPlanetPosition, uPlanetRadius);
   vec3 color = texture(uPlanetColor, textureCoord).rgb;
+  color = Scurve(color);
 
   vec3 normal = planetNormal(position);
-  float specular = 1.;
 
-  return Hit(len, normal, Material(color, 1., specular, vec3(0.)));
+  return Hit(len, normal, Material(color, 1., 0., vec3(0.)));
 }
 
 Hit intersectScene(vec3 ro, vec3 rd) {

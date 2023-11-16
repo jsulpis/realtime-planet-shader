@@ -81,10 +81,20 @@ export function addPlanetControls(
       const atmosphere = planetFolder.addFolder({ title: "Atmosphere" });
 
       atmosphere
-         .addBinding({ col: { r: 0.05, g: 0.3, b: 0.9 } }, "col", {
-            label: "Color",
-            color: { type: "float" },
-         })
+         .addBinding(
+            {
+               col: {
+                  r: uniforms.uAtmosphereColor[0],
+                  g: uniforms.uAtmosphereColor[1],
+                  b: uniforms.uAtmosphereColor[2],
+               },
+            },
+            "col",
+            {
+               label: "Color",
+               color: { type: "float" },
+            }
+         )
          .on("change", ({ value: { r, g, b } }) => {
             uniforms.uAtmosphereColor = [r, g, b];
          });
