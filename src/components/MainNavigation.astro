@@ -1,23 +1,35 @@
 ---
-const routes = [
-   { slug: "procedural", title: "Procedural" },
-   { slug: "earth", title: "Earth" },
-   { slug: "moon", title: "Moon" },
+const routeNames = [
+   "procedural",
+   "earth",
+   "moon",
+   "mercury",
+   "venus",
+   "jupiter",
+   "mars",
 ];
 
 const currentPath = Astro.url.pathname;
 ---
 
+<script>
+   window.addEventListener("DOMContentLoaded", () => {
+      document.querySelector('a[aria-current="page"')?.scrollIntoView({
+         block: "center",
+      });
+   });
+</script>
+
 <nav>
    <ul>
       {
-         routes.map(({ slug, title }) => (
+         routeNames.map((route) => (
             <li>
                <a
-                  aria-current={currentPath.includes(slug) ? "page" : null}
-                  href={`/realtime-planet-shader/${slug}`}
+                  aria-current={currentPath.includes(route) ? "page" : null}
+                  href={`/realtime-planet-shader/${route}`}
                >
-                  {title}
+                  {route.charAt(0).toUpperCase() + route.slice(1)}
                </a>
             </li>
          ))
@@ -27,6 +39,10 @@ const currentPath = Astro.url.pathname;
 
 <style lang="scss">
    nav {
+      max-width: 100%;
+      overflow: auto;
+      padding-block: 1em;
+
       ul {
          display: flex;
          gap: 1em;

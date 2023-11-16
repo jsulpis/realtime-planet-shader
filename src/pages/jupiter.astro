@@ -1,0 +1,80 @@
+---
+import Author from "../components/Author.astro";
+import Canvas from "../components/Canvas.astro";
+import Footer from "../components/Footer.astro";
+import MainNavigation from "../components/MainNavigation.astro";
+import Meta from "../components/Meta.astro";
+import TextureCredits from "../components/TextureCredits.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<script>
+   import { useGlslCanvas } from "../webgl/renderer";
+   import vertexShader from "../webgl/shaders/vertex.glsl";
+   import fragmentShader from "../webgl/shaders/planet.fragment.glsl";
+   import { addPlanetControls } from "../controls/planet.controls";
+   import { addLightControls } from "../controls/light.controls";
+   import { addMonitor } from "../controls/monitor.controls";
+   import { addRotationControls } from "../controls/rotation.controls";
+   import { loadTextures } from "../webgl/loaders/texture.loader";
+   import { defaultUniforms } from "../webgl/settings/uniforms";
+   import type { TextureData } from "../webgl/loaders/texture.types";
+
+   const textures: TextureData[] = [
+      {
+         path: "2k_jupiter.jpg",
+         options: { minFilter: "linearMipmapLinear" },
+      },
+      {
+         path: "4k_stars.jpg",
+         width: 4096,
+         height: 2048,
+         options: { minFilter: "linearMipmapLinear" },
+      },
+   ];
+
+   const [uPlanetColor, uStars] = await loadTextures(textures);
+
+   const { uniforms, canvas } = useGlslCanvas({
+      vertex: vertexShader,
+      fragment: fragmentShader,
+      uniforms: {
+         ...defaultUniforms,
+         uAtmosphereColor: [0.36, 0.92, 0.95],
+         uAtmosphereDensity: 0.05,
+         uBumpStrength: 0.003,
+         uQuality: Math.min(window.devicePixelRatio, 2),
+         uPlanetColor,
+         uStars,
+      },
+   });
+
+   const { Pane } = await import("tweakpane");
+
+   const pane = new Pane({ title: "Controls", expanded: false });
+
+   addRotationControls(pane, uniforms, canvas);
+   addPlanetControls(pane, uniforms, {
+      geometry: false,
+      terrain: false,
+      clouds: false,
+   });
+   addLightControls(pane, uniforms);
+   addMonitor(pane);
+</script>
+
+<Layout title="Venus" description="Realtime venus shader in WebGL">
+   <Canvas />
+   <Footer>
+      <MainNavigation />
+      <Meta>
+         <Author />
+         <TextureCredits>
+            Textures from
+            <a href="https://www.solarsystemscope.com/textures/">
+               Solar System Scope
+            </a>
+         </TextureCredits>
+      </Meta>
+   </Footer>
+</Layout>
