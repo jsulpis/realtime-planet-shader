@@ -25,4 +25,3 @@ export function addQualityControl(
       renderer.setSize(window.innerWidth * value, window.innerHeight * value);
    });
 }
-export { Quality };

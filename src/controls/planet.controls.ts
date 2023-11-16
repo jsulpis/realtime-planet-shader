@@ -1,24 +1,18 @@
 import type { Pane } from "tweakpane";
 import type { CustomUniforms } from "../webgl/settings/uniforms";
-
-interface Display {
-   geometry?: boolean;
-   terrain?: boolean;
-   clouds?: boolean;
-   atmosphere?: boolean;
-}
+import type { ControlsOptions } from "./setup";
 
 export function addPlanetControls(
    pane: Pane,
    uniforms: CustomUniforms,
-   display: Display = {}
+   options: ControlsOptions["planet"] = {}
 ) {
    const planetFolder = pane.addFolder({
       title: "Planet",
       expanded: window.innerHeight > 800,
    });
 
-   if (display.geometry !== false) {
+   if (options.geometry === true) {
       const geometry = planetFolder.addFolder({ title: "Geometry" });
 
       geometry
@@ -38,7 +32,7 @@ export function addPlanetControls(
       });
    }
 
-   if (display.terrain !== false) {
+   if (options.terrain === true) {
       const terrain = planetFolder.addFolder({ title: "Terrain" });
 
       terrain.addBinding(uniforms, "uNoiseStrength", {
@@ -53,7 +47,7 @@ export function addPlanetControls(
       });
    }
 
-   if (display.clouds !== false) {
+   if (options.clouds === true) {
       const clouds = planetFolder.addFolder({ title: "Clouds" });
 
       clouds.addBinding(uniforms, "uCloudsDensity", {
@@ -77,31 +71,29 @@ export function addPlanetControls(
       }
    }
 
-   if (display.atmosphere !== false) {
-      const atmosphere = planetFolder.addFolder({ title: "Atmosphere" });
+   const atmosphere = planetFolder.addFolder({ title: "Atmosphere" });
 
-      atmosphere
-         .addBinding(
-            {
-               col: {
-                  r: uniforms.uAtmosphereColor[0],
-                  g: uniforms.uAtmosphereColor[1],
-                  b: uniforms.uAtmosphereColor[2],
-               },
+   atmosphere
+      .addBinding(
+         {
+            col: {
+               r: uniforms.uAtmosphereColor[0],
+               g: uniforms.uAtmosphereColor[1],
+               b: uniforms.uAtmosphereColor[2],
             },
-            "col",
-            {
-               label: "Color",
-               color: { type: "float" },
-            }
-         )
-         .on("change", ({ value: { r, g, b } }) => {
-            uniforms.uAtmosphereColor = [r, g, b];
-         });
-      atmosphere.addBinding(uniforms, "uAtmosphereDensity", {
-         label: "Density",
-         min: 0,
-         max: 1,
+         },
+         "col",
+         {
+            label: "Color",
+            color: { type: "float" },
+         }
+      )
+      .on("change", ({ value: { r, g, b } }) => {
+         uniforms.uAtmosphereColor = [r, g, b];
       });
-   }
+   atmosphere.addBinding(uniforms, "uAtmosphereDensity", {
+      label: "Density",
+      min: 0,
+      max: 1,
+   });
 }

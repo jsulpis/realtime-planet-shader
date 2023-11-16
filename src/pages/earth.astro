@@ -12,13 +12,10 @@ import TextureCredits from "../components/TextureCredits.astro";
    import { useGlslCanvas } from "../webgl/renderer";
    import vertexShader from "../webgl/shaders/vertex.glsl";
    import fragmentShader from "../webgl/shaders/earth.fragment.glsl";
-   import { addPlanetControls } from "../controls/planet.controls";
-   import { addLightControls } from "../controls/light.controls";
-   import { addMonitor } from "../controls/monitor.controls";
-   import { addRotationControls } from "../controls/rotation.controls";
    import { loadTextures } from "../webgl/loaders/texture.loader";
    import { defaultUniforms } from "../webgl/settings/uniforms";
    import type { TextureData } from "../webgl/loaders/texture.types";
+   import { setupControls } from "../controls/setup";
 
    const textures: TextureData[] = [
       { path: "2k_earth_color.jpeg" },
@@ -46,7 +43,7 @@ import TextureCredits from "../components/TextureCredits.astro";
       uStars,
    ] = await loadTextures(textures);
 
-   const { uniforms, canvas } = useGlslCanvas({
+   const { canvas, uniforms } = useGlslCanvas({
       vertex: vertexShader,
       fragment: fragmentShader,
       uniforms: {
@@ -63,14 +60,7 @@ import TextureCredits from "../components/TextureCredits.astro";
       },
    });
 
-   const { Pane } = await import("tweakpane");
-
-   const pane = new Pane({ title: "Controls", expanded: false });
-
-   addRotationControls(pane, uniforms, canvas);
-   addPlanetControls(pane, uniforms, { geometry: false, terrain: false });
-   addLightControls(pane, uniforms);
-   addMonitor(pane);
+   setupControls({ canvas, uniforms }, { planet: { clouds: true } });
 </script>
 
 <Layout title="Earth" description="Realtime earth shader in WebGL">

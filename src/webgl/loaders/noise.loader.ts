@@ -1,7 +1,10 @@
 /**
- * 3D texture file borrowed from Shadertoy
+ * load a 3D texture file borrowed from Shadertoy
  */
-export async function load3DNoiseTexture(gl: WebGL2RenderingContext) {
+export async function load3DNoiseTexture() {
+   const gl = document.querySelector("canvas")?.getContext("webgl2");
+   if (!gl) return;
+
    const response = await fetch("/realtime-planet-shader/3DNoise.bin");
    const binaryData = await response.arrayBuffer();
    const volumeTexture = gl.createTexture();

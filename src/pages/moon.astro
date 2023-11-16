@@ -12,13 +12,10 @@ import Layout from "../layouts/Layout.astro";
    import { useGlslCanvas } from "../webgl/renderer";
    import vertexShader from "../webgl/shaders/vertex.glsl";
    import fragmentShader from "../webgl/shaders/planet.fragment.glsl";
-   import { addPlanetControls } from "../controls/planet.controls";
-   import { addLightControls } from "../controls/light.controls";
-   import { addMonitor } from "../controls/monitor.controls";
-   import { addRotationControls } from "../controls/rotation.controls";
    import { loadTextures } from "../webgl/loaders/texture.loader";
    import { defaultUniforms } from "../webgl/settings/uniforms";
    import type { TextureData } from "../webgl/loaders/texture.types";
+   import { setupControls } from "../controls/setup";
 
    const textures: TextureData[] = [
       {
@@ -35,7 +32,7 @@ import Layout from "../layouts/Layout.astro";
 
    const [uPlanetColor, uStars] = await loadTextures(textures);
 
-   const { uniforms, canvas } = useGlslCanvas({
+   const { canvas, uniforms } = useGlslCanvas({
       vertex: vertexShader,
       fragment: fragmentShader,
       uniforms: {
@@ -48,18 +45,7 @@ import Layout from "../layouts/Layout.astro";
       },
    });
 
-   const { Pane } = await import("tweakpane");
-
-   const pane = new Pane({ title: "Controls", expanded: false });
-
-   addRotationControls(pane, uniforms, canvas);
-   addPlanetControls(pane, uniforms, {
-      geometry: false,
-      terrain: false,
-      clouds: false,
-   });
-   addLightControls(pane, uniforms);
-   addMonitor(pane);
+   setupControls({ canvas, uniforms });
 </script>
 
 <Layout title="Moon" description="Realtime moon shader in WebGL">

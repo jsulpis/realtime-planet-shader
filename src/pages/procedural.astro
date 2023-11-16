@@ -11,23 +11,17 @@ import Layout from "../layouts/Layout.astro";
    import { useGlslCanvas } from "../webgl/renderer";
    import vertexShader from "../webgl/shaders/vertex.glsl";
    import fragmentShader from "../webgl/shaders/procedural.fragment.glsl";
-   import { addPlanetControls } from "../controls/planet.controls";
-   import { addLightControls } from "../controls/light.controls";
-   import { addMonitor } from "../controls/monitor.controls";
    import { load3DNoiseTexture } from "../webgl/loaders/noise.loader";
-   import { Quality, addQualityControl } from "../controls/quality.controls";
-   import { addRotationControls } from "../controls/rotation.controls";
    import { defaultUniforms } from "../webgl/settings/uniforms";
+   import { Quality } from "../webgl/settings/quality";
+   import { setupControls } from "../controls/setup";
 
-   const canvas = document.querySelector("canvas")!;
-
-   await load3DNoiseTexture(canvas.getContext("webgl2")!);
+   await load3DNoiseTexture();
 
    const isPhone = window.innerWidth < 800;
    const defaultQuality = isPhone ? Quality.MEDIUM : Quality.OPTIMAL;
 
-   const { uniforms, renderer } = useGlslCanvas({
-      canvas,
+   const { canvas, uniforms, renderer } = useGlslCanvas({
       vertex: vertexShader,
       fragment: fragmentShader,
       uniforms: {
@@ -36,15 +30,18 @@ import Layout from "../layouts/Layout.astro";
       },
    });
 
-   const { Pane } = await import("tweakpane");
-
-   const pane = new Pane({ title: "Controls" });
-
-   addQualityControl(pane, uniforms, renderer, defaultQuality);
-   addRotationControls(pane, uniforms, canvas);
-   addPlanetControls(pane, uniforms);
-   addLightControls(pane, uniforms);
-   addMonitor(pane);
+   setupControls(
+      { canvas, uniforms, renderer, defaultQuality },
+      {
+         expanded: true,
+         quality: true,
+         planet: {
+            clouds: true,
+            geometry: true,
+            terrain: true,
+         },
+      }
+   );
 </script>
 
 <Layout
