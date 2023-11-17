@@ -11,7 +11,7 @@ export const defaultUniforms = {
    uTerrainScale: 0.8,
    uCloudsDensity: 0.5,
    uCloudsScale: 1,
-   uCloudsSpeed: 1,
+   uCloudsSpeed: 1.5,
    uAtmosphereColor: [0.05, 0.3, 0.9],
    uAtmosphereDensity: 0.3,
    uAmbientLight: 0.01,

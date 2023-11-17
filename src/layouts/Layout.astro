@@ -1,4 +1,6 @@
 ---
+import MainTitle from "../components/MainTitle.astro";
+
 const { title, description } = Astro.props;
 
 const slug = Astro.url.pathname.replace(/\/$/, "").split("/").at(-1);
@@ -28,8 +30,16 @@ const baseUrl = "https://jsulpis.github.io/realtime-planet-shader";
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:creator" content="@jsulpis" />
       <meta name="twitter:site" content="@jsulpis" />
+
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link
+         href="https://fonts.googleapis.com/css2?family=Bellefair&display=swap"
+         rel="stylesheet"
+      />
    </head>
    <body>
+      <MainTitle>{title}</MainTitle>
       <slot />
    </body>
 </html>
@@ -72,13 +82,23 @@ const baseUrl = "https://jsulpis.github.io/realtime-planet-shader";
       box-sizing: border-box;
    }
 
+   html {
+      font-size: 120%;
+      color-scheme: dark;
+   }
+
    body {
       background: rgb(0, 0, 0.002);
-      font-family: sans-serif;
+      font-family: "Bellefair", serif;
       overflow: hidden;
    }
 
    a {
       color: hsla(0, 0%, 100%, 0.7);
+   }
+
+   // tweakpane
+   .tp-dfwv {
+      z-index: 2;
    }
 </style>

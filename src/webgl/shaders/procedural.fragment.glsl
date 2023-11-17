@@ -289,7 +289,7 @@ vec3 spaceColor(vec3 direction) {
   vec3 backgroundCoord = direction * backgroundRotation;
   float spaceNoise = fbm(backgroundCoord * 3., 4, .5, 2., 6.);
 
-  return stars(backgroundCoord) + mix(DEEP_SPACE, uAtmosphereColor / 8., spaceNoise);
+  return stars(backgroundCoord) + mix(DEEP_SPACE, uAtmosphereColor / 12., spaceNoise);
 }
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask, Hit firstHit) {

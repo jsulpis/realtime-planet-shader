@@ -41,11 +41,12 @@ const currentPath = Astro.url.pathname;
    nav {
       max-width: 100%;
       overflow: auto;
-      padding-block: 1em;
+      padding: 1em 2px; // 2px to avoid cropping the focus outline on the links because of overflow auto
 
       ul {
          display: flex;
          gap: 1em;
+         list-style-type: none;
       }
 
       a {
@@ -57,15 +58,11 @@ const currentPath = Astro.url.pathname;
          opacity: 1;
       }
 
-      a[aria-current="page"] {
-         font-weight: bold;
-         text-decoration: underline;
-      }
-   }
-
-   @media (min-width: 600px) {
-      nav {
-         grid-column-start: 2;
+      a[aria-current="page"]::after {
+         content: "";
+         display: block;
+         height: 3px;
+         background-color: currentColor;
       }
    }
 </style>

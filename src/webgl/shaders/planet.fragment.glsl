@@ -46,7 +46,7 @@ in vec3 uSunDirection;
 #define PLANET_ROTATION rotateY(uTime * ROTATION_SPEED + uRotationOffset)
 
 // Lighting
-#define SUN_COLOR vec3(1.0, 1.0, 0.9)
+#define SUN_COLOR vec3(1.0, 1.0, 1.0)
 #define DEEP_SPACE vec3(0., 0., 0.001)
 
 // Ray tracing
