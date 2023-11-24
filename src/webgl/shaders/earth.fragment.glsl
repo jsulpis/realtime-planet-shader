@@ -60,6 +60,7 @@ in vec3 uSunDirection;
 // Ray tracing
 #define INFINITY 1e10
 #define CAMERA_POSITION vec3(0., 0., 6.0)
+#define FOCAL_LENGTH CAMERA_POSITION.z / (CAMERA_POSITION.z - uPlanetPosition.z)
 
 #define PI acos(-1.)
 
@@ -108,10 +109,14 @@ float remap(float v, float inMin, float inMax, float outMin, float outMax) {
   return mix(outMin, outMax, t);
 }
 
-vec2 sphereProjection(vec3 p, vec3 origin, float radius) {
+vec2 sphereProjection(vec3 p, vec3 origin) {
+  vec3 dir = normalize(p - origin);
+  float longitude = atan(dir.x, dir.z); // [-PI, PI]
+  float latitude = asin(dir.y); // [-PI/2, PI/2]
+
   return vec2(
-    atan(p.x, p.z) / PI,
-    (p.y - (origin.y - radius)) / (2. * radius)
+    (longitude + PI) / (2. * PI), // [0, 1]
+    (latitude + PI / 2.) / PI // [0, 1]
   );
 }
 
@@ -149,7 +154,7 @@ vec3 simpleReinhardToneMapping(vec3 color) {
 //========//
 
 float planetNoise(vec3 p) {
-  vec2 textureCoord = sphereProjection(p, uPlanetPosition, uPlanetRadius);
+  vec2 textureCoord = sphereProjection(p, uPlanetPosition);
   float bump = texture(uEarthBump, textureCoord).r;
   float cloudsDensity = texture(uEarthClouds, textureCoord).r;
 
@@ -180,8 +185,8 @@ vec3 planetNormal(vec3 p) {
 vec3 spaceColor(vec3 direction) {
   vec3 backgroundCoord = direction * rotateY(uTime * ROTATION_SPEED / 4.);
 
-  float radius = length(backgroundCoord);
-  vec2 textureCoord = sphereProjection(backgroundCoord, vec3(0.), radius);
+  vec2 textureCoord = sphereProjection(backgroundCoord, vec3(0.));
+  textureCoord.x = 1. - textureCoord.x; // flip X because we are inside the texture
   vec3 stars = texture(uStars, textureCoord).rgb;
 
   return DEEP_SPACE + stars * stars * stars * stars * .6;
@@ -221,7 +226,7 @@ Hit intersectPlanet(vec3 ro, vec3 rd) {
   vec3 position = ro + len * rd;
   vec3 rotatedPosition = PLANET_ROTATION * (position - uPlanetPosition) + uPlanetPosition;
 
-  vec2 textureCoord = sphereProjection(rotatedPosition, uPlanetPosition, uPlanetRadius);
+  vec2 textureCoord = sphereProjection(rotatedPosition, uPlanetPosition);
   vec3 color = texture(uEarthColor, textureCoord).rgb;
 
   vec3 normal = planetNormal(position);
@@ -259,12 +264,13 @@ vec3 radiance(vec3 ro, vec3 rd) {
 
     // Phong specular
     vec3 reflected = normalize(reflect(-uSunDirection, hit.normal));
-    float phongValue = pow(max(0.0, dot(rd, reflected)), 10.) * .2 * uSunIntensity;
+    vec3 phongRd = normalize(vec3(uv * pow(FOCAL_LENGTH, -1.), -1.)); // I want the reflection to stay on the edge of the planet
+    float phongValue = pow(max(0.0, dot(phongRd, reflected)), 8.) * .2 * uSunIntensity;
     vec3 specularColor = hit.material.specular * vec3(phongValue);
 
     color = diffuseColor + specularColor + hit.material.emission;
   } else {
-    color = spaceColor(rd);
+    color = spaceColor(normalize(vec3(uv, -1.))); // space not affected by focal length
   }
 
   return color + atmosphereColor(ro, rd, spaceMask);
@@ -276,7 +282,7 @@ vec3 radiance(vec3 ro, vec3 rd) {
 
 void main() {
   vec3 ro = vec3(CAMERA_POSITION);
-  vec3 rd = normalize(vec3(uv, -1.));
+  vec3 rd = normalize(vec3(uv * FOCAL_LENGTH, -1.));
 
   vec3 color = radiance(ro, rd);
 

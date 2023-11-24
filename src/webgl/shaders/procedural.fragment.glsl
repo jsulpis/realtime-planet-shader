@@ -420,7 +420,7 @@ vec3 radiance(vec3 ro, vec3 rd) {
 
 void main() {
   vec3 ro = vec3(CAMERA_POSITION);
-  vec3 rd = normalize(vec3(uv.x, uv.y, -1));
+  vec3 rd = normalize(vec3(uv, -1));
 
   vec3 color = radiance(ro, rd);
 
