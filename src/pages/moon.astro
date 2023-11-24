@@ -14,23 +14,13 @@ import Layout from "../layouts/Layout.astro";
    import fragmentShader from "../webgl/shaders/planet.fragment.glsl";
    import { loadTextures } from "../webgl/loaders/texture.loader";
    import { defaultUniforms } from "../webgl/settings/uniforms";
-   import type { TextureData } from "../webgl/loaders/texture.types";
    import { setupControls } from "../controls/setup";
+   import { starsTexture } from "../webgl/textures/starsTexture";
 
-   const textures: TextureData[] = [
-      {
-         path: "2k_moon.jpeg",
-         options: { minFilter: "linearMipmapLinear" },
-      },
-      {
-         path: "4k_stars.jpg",
-         width: 4096,
-         height: 2048,
-         options: { minFilter: "linearMipmapLinear" },
-      },
-   ];
-
-   const [uPlanetColor, uStars] = await loadTextures(textures);
+   const [uPlanetColor, uStars] = await loadTextures([
+      { path: "2k_moon.jpeg" },
+      starsTexture,
+   ]);
 
    const { canvas, uniforms } = useGlslCanvas({
       vertex: vertexShader,
@@ -39,7 +29,6 @@ import Layout from "../layouts/Layout.astro";
          ...defaultUniforms,
          uAtmosphereColor: [1, 1, 1],
          uAtmosphereDensity: 0.05,
-         uQuality: Math.min(window.devicePixelRatio, 2),
          uPlanetColor,
          uStars,
       },

@@ -15,10 +15,10 @@ import Layout from "../layouts/Layout.astro";
    import { defaultUniforms } from "../webgl/settings/uniforms";
    import { Quality } from "../webgl/settings/quality";
    import { setupControls } from "../controls/setup";
+   import { isPhone } from "../webgl/settings/device";
 
    await load3DNoiseTexture();
 
-   const isPhone = window.innerWidth < 800;
    const defaultQuality = isPhone ? Quality.MEDIUM : Quality.OPTIMAL;
 
    const { canvas, uniforms, renderer } = useGlslCanvas({
@@ -26,6 +26,8 @@ import Layout from "../layouts/Layout.astro";
       fragment: fragmentShader,
       uniforms: {
          ...defaultUniforms,
+         uPlanetPosition: [0, 0, 0],
+         uPlanetRadius: 1.9,
          uQuality: defaultQuality,
       },
    });

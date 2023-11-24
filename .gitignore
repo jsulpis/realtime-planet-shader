@@ -11,7 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-textures
+/textures
 
 # Editor directories and files
 .vscode/*

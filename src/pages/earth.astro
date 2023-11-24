@@ -16,6 +16,7 @@ import TextureCredits from "../components/TextureCredits.astro";
    import { defaultUniforms } from "../webgl/settings/uniforms";
    import type { TextureData } from "../webgl/loaders/texture.types";
    import { setupControls } from "../controls/setup";
+   import { starsTexture } from "../webgl/textures/starsTexture";
 
    const textures: TextureData[] = [
       { path: "2k_earth_color.jpeg" },
@@ -26,12 +27,7 @@ import TextureCredits from "../components/TextureCredits.astro";
       { path: "2k_earth_clouds.jpeg" },
       { path: "2k_earth_specular.jpeg" },
       { path: "2k_earth_bump.jpg" },
-      {
-         path: "4k_stars.jpg",
-         width: 4096,
-         height: 2048,
-         options: { minFilter: "linearMipmapLinear" },
-      },
+      starsTexture,
    ];
 
    const [

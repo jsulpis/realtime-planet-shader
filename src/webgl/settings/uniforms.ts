@@ -1,10 +1,10 @@
 export const defaultUniforms = {
-   uTime: 0.0,
+   uTime: 0,
    uQuality: Math.min(window.devicePixelRatio, 2),
    uRotationSpeed: 1,
    uResolution: [window.innerWidth, window.innerHeight],
    uPlanetPosition: [0, 0, -10],
-   uRotationOffset: 1,
+   uRotationOffset: 0.6,
    uPlanetRadius: 2,
    uBumpStrength: 0.01,
    uNoiseStrength: 0.2,

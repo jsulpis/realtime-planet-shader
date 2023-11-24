@@ -47,7 +47,7 @@ in vec3 uSunDirection;
 
 // Lighting
 #define SUN_COLOR vec3(1.0, 1.0, 1.0)
-#define DEEP_SPACE vec3(0., 0., 0.001)
+#define DEEP_SPACE vec3(0., 0., 0.0005)
 
 // Ray tracing
 #define INFINITY 1e10
@@ -182,13 +182,13 @@ vec3 planetNormal(vec3 p) {
 }
 
 vec3 spaceColor(vec3 direction) {
-  vec3 backgroundCoord = direction * rotateY(uTime * ROTATION_SPEED / 3. + .5);
+  vec3 backgroundCoord = direction * rotateY(uTime * ROTATION_SPEED / 3. + 1.5);
 
   vec2 textureCoord = sphereProjection(backgroundCoord, vec3(0.));
   textureCoord.x = 1. - textureCoord.x; // flip X because we are inside the texture
   vec3 stars = texture(uStars, textureCoord).rgb;
 
-  return DEEP_SPACE + stars * stars * stars * stars * .6;
+  return DEEP_SPACE + stars * stars * stars * .5;
 }
 
 vec3 atmosphereColor(vec3 ro, vec3 rd, float spaceMask) {
@@ -258,7 +258,9 @@ vec3 radiance(vec3 ro, vec3 rd) {
 
     color = diffuseColor + specularColor + hit.material.emission;
   } else {
-    color = spaceColor(normalize(vec3(uv, -1.))); // space not affected by focal length
+    float zoomFactor = min(uResolution.x / uResolution.y, 1.); // zoom for portrait mode because the background image is cropped to optimize file size
+    vec3 backgroundRd = normalize(vec3(uv * zoomFactor, -1.)); // background not affected by focal length
+    color = spaceColor(backgroundRd);
   }
 
   return color + atmosphereColor(ro, rd, spaceMask);
