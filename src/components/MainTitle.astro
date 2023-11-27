@@ -5,17 +5,17 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      top: max(5vh, calc(50% - 1em - 47vmin));
+      top: max(6vh, calc(50% - 1em - 45vmin));
       font-size: clamp(1.375rem, 1.444vw + 0.833rem, 2.188rem);
       text-transform: uppercase;
       letter-spacing: 0.5ch;
       padding-left: 0.5ch; // optical alignment: compensate the space after the last letter because of letter spacing
       font-weight: normal;
-      opacity: 0.6;
       z-index: 1;
 
-      @media (max-width: 600px) {
-         pointer-events: none; // overlap the controls panel
-      }
+      background: linear-gradient(to top, hsl(0deg 0% 20%), white 120%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 0.8ch hsla(0deg 0% 100% / 35%);
    }
 </style>
